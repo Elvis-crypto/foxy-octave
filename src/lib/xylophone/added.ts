@@ -12,7 +12,7 @@ export const ADDED: readonly RepertoireSong[] = [
     tune: [
     { source: "G G G D E E D", eight: "G G G D E E D", fifteen: "G G G D E E D" },
     { source: "B B A A G", eight: "B B A A G", fifteen: "B B A A G" },
-    { source: "D D D A B B A", eight: "D D D A B B A/ A/", fifteen: "D D D A B B A/ A/" },
+    { source: "D D D A B B A", eight: "D D D A B B A", fifteen: "D D D A B B A" },
     { source: "B B A A G", eight: "B B A A G", fifteen: "B B A A G" },
     ],
     verses: [
@@ -49,7 +49,7 @@ export const ADDED: readonly RepertoireSong[] = [
     eightFold: "leap",
     tune: [
     { source: "c c d e c d e c d e c", eight: "c c D E C D E C D E C", fifteen: "c c d e c d e c d e c" },
-    { source: "c d e c d e c c c", eight: "c D E C D E C C C", fifteen: "c d e c d e c c c" },
+    { source: "c d e c d e c c c", eight: "C D E C D E C C C", fifteen: "c d e c d e c c c" },
     ],
     verses: [
     ["Alouette, gentille alouette", "Alouette, je te plumerai"],
@@ -66,9 +66,9 @@ export const ADDED: readonly RepertoireSong[] = [
     eightFold: "leap",
     tune: [
     { source: "c c d e c", eight: "c c D E C", fifteen: "c c d e c" },
-    { source: "c c d e f e d c c", eight: "c c D E F E D C C", fifteen: "c c d e f e d c c" },
-    { source: "c c d e c", eight: "c c D E C", fifteen: "c c d e c" },
-    { source: "c d e f e d c c c", eight: "c D E F E D C C C", fifteen: "c d e f e d c c c" },
+    { source: "c c d e f e d c c", eight: "C C D E F E D C C", fifteen: "c c d e f e d c c" },
+    { source: "c c d e c", eight: "C C D E C", fifteen: "c c d e c" },
+    { source: "c d e f e d c c c", eight: "C D E F E D C C C", fifteen: "c d e f e d c c c" },
     ],
     verses: [
     ["Ainsi font, font, font", "Les petites marionnettes", "Ainsi font, font, font", "Trois petits tours et puis s'en vont"],
@@ -99,9 +99,9 @@ export const ADDED: readonly RepertoireSong[] = [
     from: "Traditional Savez-vous planter les choux. Public domain.",
     eightFold: "leap",
     tune: [
-    { source: "c c c d e e e", eight: "c c c D E E E/ E/", fifteen: "c c c d e e e/ e/" },
+    { source: "c c c d e e e", eight: "c c c D E E E", fifteen: "c c c d e e e" },
     { source: "d d c d e e d c", eight: "D D C D E E D C", fifteen: "d d c d e e d c" },
-    { source: "c c c d e e e", eight: "c c c D E E E/ E/", fifteen: "c c c d e e e/ e/" },
+    { source: "c c c d e e e", eight: "C C C D E E E", fifteen: "c c c d e e e" },
     { source: "d d c B c c c", eight: "D D C B c c c", fifteen: "d d c B c c c" },
     ],
     verses: [
@@ -118,14 +118,14 @@ export const ADDED: readonly RepertoireSong[] = [
     from: "Traditional Une souris verte. Public domain.",
     eightFold: "leap",
     tune: [
-    { source: "C E G G E C", eight: "C E G/ G/ G E C/ C/", fifteen: "C E G/ G/ G E C/ C/" },
-    { source: "C E G A G E", eight: "C E G/ G/ A G E/ E/", fifteen: "C E G/ G/ A G E/ E/" },
+    { source: "C E G G E C", eight: "C E G G E C", fifteen: "C E G G E C" },
+    { source: "C E G A G E", eight: "C E G A G E", fifteen: "C E G A G E" },
     { source: "G G A G F E D C", eight: "G G A G F E D C", fifteen: "G G A G F E D C" },
     ],
     verses: [
-    ["Une souris verte", "Qui courait dans l'herbe", "Je la mets dans un coffret"],
-    ["Je l'attrape par la queue", "Je la montre à ces messieurs", "Ces messieurs me disent"],
-    ["Je la trempe dans l'huile", "Je la trempe dans l'eau", "Ça fait un escargot tout chaud"],
+    ["Une souris verte", "Qui courait dans l'herbe", "Je l'attrape par la queue"],
+    ["Je la montre à ces messieurs", "Ces messieurs me disent", "Trempez-la dans l'huile"],
+    ["Trempez-la dans l'eau", "Ça fera un escargot", "Tout chaud"],
     ],
   },
   {
@@ -139,47 +139,12 @@ export const ADDED: readonly RepertoireSong[] = [
     { source: "c c c d e e e", eight: "c c c D E E E", fifteen: "c c c d e e e" },
     { source: "d d e c d e f g", eight: "D D E C D E F G", fifteen: "d d e c d e f g" },
     { source: "e e d c B c d e", eight: "E E D C B c D E", fifteen: "e e d c B c d e" },
-    { source: "d c B c", eight: "D C/ C/ B c/ c/", fifteen: "d c/ c/ B c/ c/" },
+    { source: "d c B c", eight: "D C B c", fifteen: "d c B c" },
     ],
     verses: [
     ["Promenons-nous dans les bois", "Pendant que le loup n'y est pas", "Si le loup y était", "Il nous mangerait"],
+    ["Loup y es-tu", "M'entends-tu", "Que fais-tu", "Je mets ma chemise"],
     ["Loup y es-tu", "M'entends-tu", "Que fais-tu", "Je mets ma culotte"],
-    ["Que fais-tu", "Je mets ma chemise", "Je mets mon pantalon", "Je vais à la chasse"],
-    ],
-  },
-  {
-    id: "haenschen",
-    title: "Hänschen klein",
-    lang: "de",
-    bpm: 112,
-    from: "Traditional Hänschen klein. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "E G G G A G E", eight: "E G G G A G E", fifteen: "E G G G A G E" },
-    { source: "F A A G F E D", eight: "F A A G F E D", fifteen: "F A A G F E D" },
-    { source: "C E G G F E D", eight: "C E G G F E D", fifteen: "C E G G F E D" },
-    { source: "C E D C", eight: "C E D C/ C/", fifteen: "C E D C/ C/" },
-    ],
-    verses: [
-    ["Hänschen klein ging allein", "In die weite Welt hinein", "Stock und Hut steht ihm gut", "Ist gar wohlgemut"],
-    ["Doch die Mutter weinet sehr", "Hat gar kein Geld mehr", "Da besinnet sich das Kind", "Kehrte wieder heim"],
-    ],
-  },
-  {
-    id: "entchen",
-    title: "Alle meine Entchen",
-    lang: "de",
-    bpm: 100,
-    from: "Traditional Alle meine Entchen. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "C D E F G G", eight: "C D E F G G", fifteen: "C D E F G G" },
-    { source: "A A A A G", eight: "A A A A G/ G/", fifteen: "A A A A G/ G/" },
-    { source: "A A A A G", eight: "A A A A G/ G/", fifteen: "A A A A G/ G/" },
-    { source: "F E D C", eight: "F E D C/ C/", fifteen: "F E D C/ C/" },
-    ],
-    verses: [
-    ["Alle meine Entchen", "Schwimmen auf dem See", "Köpfchen in das Wasser", "Schwänzchen in die Höh"],
     ],
   },
   {
@@ -192,8 +157,8 @@ export const ADDED: readonly RepertoireSong[] = [
     tune: [
     { source: "C C D E E D", eight: "C C D E E D", fifteen: "C C D E E D" },
     { source: "C C D E F E D", eight: "C C D E F E D", fifteen: "C C D E F E D" },
-    { source: "E E F G G F", eight: "E E F/ F/ G G F/ F/", fifteen: "E E F/ F/ G G F/ F/" },
-    { source: "E D C D E D C", eight: "E D C D E D C/ C/", fifteen: "E D C D E D C/ C/" },
+    { source: "E E F G G F", eight: "E E F G G F", fifteen: "E E F G G F" },
+    { source: "E D C D E D C", eight: "E D C D E D C", fifteen: "E D C D E D C" },
     ],
     verses: [
     ["Backe, backe Kuchen", "Der Bäcker hat gerufen", "Wer will guten Kuchen backen", "Der muss haben sieben Sachen"],
@@ -214,24 +179,6 @@ export const ADDED: readonly RepertoireSong[] = [
     ],
     verses: [
     ["Summ, summ, summ", "Bienchen summ herum", "Ei, wir tun dir nichts zuleide", "Flieg nur aus in Wald und Heide"],
-    ["Summ, summ, summ", "Bienchen flieg herum", "Such in Blumen, such in Blumen", "Dir dein Schlafzimmer"],
-    ],
-  },
-  {
-    id: "kuckuck",
-    title: "Kuckuck",
-    lang: "de",
-    bpm: 108,
-    from: "Traditional Kuckuck, Kuckuck, ruft's aus dem Wald. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "G E G E", eight: "G E G E", fifteen: "G E G E" },
-    { source: "F D F D", eight: "F D F D", fifteen: "F D F D" },
-    { source: "C D E F G E F D E C", eight: "C D E F G E F D E C", fifteen: "C D E F G E F D E C" },
-    { source: "G E C D E C D C", eight: "G E C D E C D C", fifteen: "G E C D E C D C" },
-    ],
-    verses: [
-    ["Kuckuck, Kuckuck", "ruft aus dem Wald", "Lasset uns singen, tanzen und springen", "Frühling, Frühling wird es nun bald"],
     ],
   },
   {
@@ -244,8 +191,8 @@ export const ADDED: readonly RepertoireSong[] = [
     tune: [
     { source: "C D E F G E", eight: "C D E F G E", fifteen: "C D E F G E" },
     { source: "F E D C", eight: "F E D C", fifteen: "F E D C" },
-    { source: "E F G A G", eight: "E F G/ G/ A G/ G/", fifteen: "E F G/ G/ A G/ G/" },
-    { source: "G F E D C", eight: "G F E/ E/ D C/ C/", fifteen: "G F E/ E/ D C/ C/" },
+    { source: "E F G A G", eight: "E F G A G", fifteen: "E F G A G" },
+    { source: "G F E D C", eight: "G F E D C", fifteen: "G F E D C" },
     ],
     verses: [
     ["Häschen in der Grube", "saß und schlief", "Armes Häschen, bist du krank", "Dass du nicht mehr hüpfen kannst"],
@@ -262,32 +209,12 @@ export const ADDED: readonly RepertoireSong[] = [
     eightFold: "leap",
     tune: [
     { source: "C C C", eight: "C C C", fifteen: "C C C" },
-    { source: "E E D C", eight: "E E D C/ C/", fifteen: "E E D C/ C/" },
+    { source: "E E D C", eight: "E E D C", fifteen: "E E D C" },
     { source: "E F G G A G F E", eight: "E F G G A G F E", fifteen: "E F G G A G F E" },
-    { source: "A G F E D C", eight: "A G F/ F/ E D C/ C/", fifteen: "A G F/ F/ E D C/ C/" },
+    { source: "A G F E D C", eight: "A G F E D C", fifteen: "A G F E D C" },
     ],
     verses: [
     ["Hopp, hopp, hopp", "Pferdchen lauf Galopp", "Über Stock und über Steine", "Aber brich dir nicht die Beine"],
-    ["Hopp, hopp, hopp", "Pferdchen lauf Galopp", "Aber zwischen diesen beiden", "Fehlt noch einer, fällt er runter"],
-    ["Hopp, hopp, hopp", "Pferdchen lauf Galopp", "Zwischen diesen beiden Beinen", "Ist ein Loch, da fällt er runter"],
-    ],
-  },
-  {
-    id: "voegel",
-    title: "Alle Vögel sind schon da",
-    lang: "de",
-    bpm: 116,
-    from: "Traditional Alle Vögel sind schon da. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "C E G G G A G", eight: "C E G G G A G", fifteen: "C E G G G A G" },
-    { source: "F F E E D C", eight: "F F E E D C", fifteen: "F F E E D C" },
-    { source: "A A G F E D", eight: "A A G F E D/ D/", fifteen: "A A G F E D/ D/" },
-    { source: "C E D C D E C", eight: "C E D C D E C", fifteen: "C E D C D E C" },
-    ],
-    verses: [
-    ["Alle Vögel sind schon da", "Alle Vögel, alle", "Amsel, Drossel, Fink und Star", "Und die ganze Vogelschar"],
-    ["Wie sie alle lustig sind", "Flink und froh sich regen", "Amsel, Drossel, Fink und Star", "Wünschen dir ein frohes Jahr"],
     ],
   },
   {
@@ -298,10 +225,10 @@ export const ADDED: readonly RepertoireSong[] = [
     from: "Traditional Los pollitos dicen. Public domain.",
     eightFold: "leap",
     tune: [
-    { source: "E E G G G E", eight: "E E G G G E/ E/", fifteen: "E E G G G E/ E/" },
-    { source: "G G E E E C", eight: "G G E E E C/ C/", fifteen: "G G E E E C/ C/" },
-    { source: "C E G G F E", eight: "C E G G F E", fifteen: "C E G G F E" },
-    { source: "D C B, C D E C", eight: "D C B c D E C", fifteen: "D C B C D E C" },
+    { source: "E E G G G E", eight: "E E G G G E", fifteen: "e e g g g e" },
+    { source: "G G E E E C", eight: "G G E E E C", fifteen: "g g e e e c" },
+    { source: "C E G G F E", eight: "C E G G F E", fifteen: "c e g g f e" },
+    { source: "D C B, C D E C", eight: "D C B c D E C", fifteen: "d c B c d e c" },
     ],
     verses: [
     ["Los pollitos dicen", "pío, pío, pío", "La gallina busca", "el maíz y el trigo"],
@@ -316,15 +243,13 @@ export const ADDED: readonly RepertoireSong[] = [
     from: "Traditional Estaba el señor don Gato. Public domain.",
     eightFold: "leap",
     tune: [
-    { source: "C E G G A G E C", eight: "C E G G/ G/ A G E C/ C/", fifteen: "C E G G/ G/ A G E C/ C/" },
+    { source: "C E G G A G E C", eight: "C E G G A G E C", fifteen: "C E G G A G E C" },
     { source: "F A A G F E D C D E F", eight: "F A A G F E D C D E F", fifteen: "F A A G F E D C D E F" },
-    { source: "E G c c B A G", eight: "E G c c/ c/ B A G/ G/", fifteen: "E G c c/ c/ B A G/ G/" },
+    { source: "E G c c B A G", eight: "E G c c B A G", fifteen: "E G c c B A G" },
     { source: "G F E D C D E D C", eight: "G F E D C D E D C", fifteen: "G F E D C D E D C" },
     ],
     verses: [
     ["Estaba el señor don Gato", "sentadito en un tejado", "Con un traje muy planchado", "y un sombrero de pico"],
-    ["Recibe una carta escrita", "que si quiere ser su marido", "La gatita respondona", "le manda una esquela"],
-    ["Por no saber leer ni escribir", "se cayó del tejado abajo", "Se rompió siete costillas", "y la punta del espinazo"],
     ],
   },
   {
@@ -336,7 +261,7 @@ export const ADDED: readonly RepertoireSong[] = [
     eightFold: "leap",
     tune: [
     { source: "C C D E F E D", eight: "C C D E F E D", fifteen: "C C D E F E D" },
-    { source: "E F G A G F E", eight: "E F G A/ A/ G F E/ E/", fifteen: "E F G A/ A/ G F E/ E/" },
+    { source: "E F G A G F E", eight: "E F G A G F E", fifteen: "E F G A G F E" },
     { source: "C C D E F E D", eight: "C C D E F E D", fifteen: "C C D E F E D" },
     { source: "E D C D E D C", eight: "E D C D E D C", fifteen: "E D C D E D C" },
     ],
@@ -356,7 +281,7 @@ export const ADDED: readonly RepertoireSong[] = [
     { source: "G G E E D C E D C", eight: "G G E E D C E D C", fifteen: "G G E E D C E D C" },
     { source: "E F G A G", eight: "E F G A G", fifteen: "E F G A G" },
     { source: "A A G F E D C D E", eight: "A A G F E D C D E", fifteen: "A A G F E D C D E" },
-    { source: "C E D C", eight: "C E D C/ C/", fifteen: "C E D C/ C/" },
+    { source: "C E D C", eight: "C E D C", fifteen: "C E D C" },
     ],
     verses: [
     ["El patio de mi casa", "es particular", "Cuando llueve se moja", "como los demás"],
@@ -372,7 +297,7 @@ export const ADDED: readonly RepertoireSong[] = [
     eightFold: "leap",
     tune: [
     { source: "C E G G E C", eight: "C E G G E C", fifteen: "C E G G E C" },
-    { source: "G A G F E D", eight: "G A G/ G/ F E D/ D/", fifteen: "G A G/ G/ F E D/ D/" },
+    { source: "G A G F E D", eight: "G A G F E D", fifteen: "G A G F E D" },
     { source: "E E G G A G", eight: "E E G G A G", fifteen: "E E G G A G" },
     { source: "F E D C E D C D E", eight: "F E D C E D C D E", fifteen: "F E D C E D C D E" },
     ],
@@ -388,9 +313,9 @@ export const ADDED: readonly RepertoireSong[] = [
     from: "Traditional Pin Pon es un muñeco. Public domain.",
     eightFold: "leap",
     tune: [
-    { source: "C E G G A G E", eight: "C E G G/ G/ A G E/ E/", fifteen: "C E G G/ G/ A G E/ E/" },
-    { source: "F A A G F E D", eight: "F A A G/ G/ F E D/ D/", fifteen: "F A A G/ G/ F E D/ D/" },
-    { source: "E G c c B A G", eight: "E G c c B A G/ G/", fifteen: "E G c c B A G/ G/" },
+    { source: "C E G G A G E", eight: "C E G G A G E", fifteen: "C E G G A G E" },
+    { source: "F A A G F E D", eight: "F A A G F E D", fifteen: "F A A G F E D" },
+    { source: "E G c c B A G", eight: "E G c c B A G", fifteen: "E G c c B A G" },
     { source: "G F E D C D E C", eight: "G F E D C D E C", fifteen: "G F E D C D E C" },
     ],
     verses: [
@@ -406,14 +331,13 @@ export const ADDED: readonly RepertoireSong[] = [
     from: "Traditional Estaba la pájara pinta. Public domain.",
     eightFold: "leap",
     tune: [
-    { source: "C D E F G A G F", eight: "C D E F G A G F/ F/", fifteen: "C D E F G A G F/ F/" },
-    { source: "E F G A G F E", eight: "E F G A/ A/ G F E/ E/", fifteen: "E F G A/ A/ G F E/ E/" },
+    { source: "C D E F G A G F", eight: "C D E F G A G F", fifteen: "C D E F G A G F" },
+    { source: "E F G A G F E", eight: "E F G A G F E", fifteen: "E F G A G F E" },
     { source: "G A B c B A G F E D", eight: "G A B c B A G F E D", fifteen: "G A B c B A G F E D" },
     { source: "F E D C E D C D E", eight: "F E D C E D C D E", fifteen: "F E D C E D C D E" },
     ],
     verses: [
     ["Estaba la pájara pinta", "sentada en su verde limón", "Con el pico recoge la rama", "con la rama recoge la flor"],
-    ["Date prisa, amigo Juan", "que te espera tu mamá", "Date prisa, amigo Juan", "que te espera tu mamá"],
     ],
   },
   {
@@ -431,25 +355,6 @@ export const ADDED: readonly RepertoireSong[] = [
     ],
     verses: [
     ["A la rueda, rueda", "de pan y canela", "Dame un beso", "y vete a la escuela"],
-    ["Los de adelante corren mucho", "y los de atrás se quedarán", "tras, tras, tras", "una vuelta más"],
-    ],
-  },
-  {
-    id: "duermete",
-    title: "Duérmete, mi niño",
-    lang: "es",
-    bpm: 76,
-    from: "Traditional Duérmete, mi niño. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "E E G G E C", eight: "E E G/ G/ G E C/ C/", fifteen: "E E G/ G/ G E C/ C/" },
-    { source: "G A G F E D", eight: "G A G F E D/ D/", fifteen: "G A G F E D/ D/" },
-    { source: "C E G c B A G", eight: "C E G c B A G", fifteen: "C E G c B A G" },
-    { source: "F E D C E D C C", eight: "F E D C E D C C", fifteen: "F E D C E D C C" },
-    ],
-    verses: [
-    ["Duérmete, mi niño", "duérmete, solito", "Que viene el coco", "y se lleva a los niños"],
-    ["Duérmete, lucerito", "de la mañana", "Duérmete, mi niño", "duérmete, mi amor"],
     ],
   },
   {
@@ -472,130 +377,6 @@ export const ADDED: readonly RepertoireSong[] = [
     ],
   },
   {
-    id: "brille",
-    title: "Bro, bro, brille",
-    lang: "da",
-    bpm: 108,
-    from: "Traditional Bro, bro, brille. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "C E G G", eight: "C E G G", fifteen: "C E G G" },
-    { source: "A G F E D", eight: "A G F/ F/ E D/ D/", fifteen: "A G F/ F/ E D/ D/" },
-    { source: "E F G A G", eight: "E F G/ G/ A G/ G/", fifteen: "E F G/ G/ A G/ G/" },
-    { source: "F E D C", eight: "F E D C/ C/", fifteen: "F E D C/ C/" },
-    ],
-    verses: [
-    ["Bro, bro, brille", "klokken ringer elleve", "kejseren står på trappen", "og kys den jomfru"],
-    ],
-  },
-  {
-    id: "krage",
-    title: "Højt på en gren en krage",
-    lang: "da",
-    bpm: 96,
-    from: "Traditional Højt på en gren en krage. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "C E G G A G E", eight: "C E G G A G E", fifteen: "C E G G A G E" },
-    { source: "F A A G F E D", eight: "F A A G F E D/ D/", fifteen: "F A A G F E D/ D/" },
-    { source: "E G c c B A G", eight: "E G c c B A G", fifteen: "E G c c B A G" },
-    { source: "G F E D C", eight: "G F E D C/ C/", fifteen: "G F E D C/ C/" },
-    ],
-    verses: [
-    ["Højt på en gren en krage", "sad og sang i sommersol", "Kom, lille krage, kom", "og syng en lille sang"],
-    ["Kragen vil ikke tie", "før den får en osteskorpe", "Så flyver kragen hjem", "til sin egen gren"],
-    ],
-  },
-  {
-    id: "ranke",
-    title: "Ride, ride ranke",
-    lang: "da",
-    bpm: 100,
-    from: "Traditional Ride, ride ranke. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "C E G G E C", eight: "C E G G E C", fifteen: "C E G G E C" },
-    { source: "G A G F E D", eight: "G A G F E D", fifteen: "G A G F E D" },
-    { source: "E F G A G E", eight: "E F G A G E", fifteen: "E F G A G E" },
-    { source: "F E D C E D C", eight: "F E D C E D C", fifteen: "F E D C E D C" },
-    ],
-    verses: [
-    ["Ride, ride ranke", "hesten hedder Blanke", "Hvor skal vi ride hen", "vi rider til kongens gård"],
-    ],
-  },
-  {
-    id: "hoppe",
-    title: "Hoppe, hoppe rytter",
-    lang: "da",
-    bpm: 120,
-    from: "Traditional Hoppe, hoppe rytter. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "C C E E G", eight: "C C E E G/ G/", fifteen: "C C E E G/ G/" },
-    { source: "A G F E D", eight: "A G F E D", fifteen: "A G F E D" },
-    { source: "E E G G c", eight: "E E G G c/ c/", fifteen: "E E G G c/ c/" },
-    { source: "A G F E D C", eight: "A G F E D C", fifteen: "A G F E D C" },
-    ],
-    verses: [
-    ["Hoppe, hoppe rytter", "hesten går i skridt", "Hoppe, hoppe rytter", "hesten går galop"],
-    ["Hoppe, hoppe rytter", "hesten går i trav", "Hoppe, hoppe rytter", "nu er turen slut"],
-    ],
-  },
-  {
-    id: "kjole",
-    title: "Se, min kjole",
-    lang: "da",
-    bpm: 104,
-    from: "Traditional Se, min kjole. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "E E G E", eight: "E E G E", fifteen: "E E G E" },
-    { source: "G A G F E D", eight: "G A G F E D", fifteen: "G A G F E D" },
-    { source: "C E G c B A", eight: "C E G c B A/ A/", fifteen: "C E G c B A/ A/" },
-    { source: "G F E D C", eight: "G F E D C/ C/", fifteen: "G F E D C/ C/" },
-    ],
-    verses: [
-    ["Se, min kjole", "den er rød som rose", "Alle små børn de synger", "når de ser den kjole"],
-    ["Se, min kjole", "den er blå som himlen", "Alle små børn de danser", "når de ser den kjole"],
-    ],
-  },
-  {
-    id: "ole",
-    title: "Ole sad på en knold",
-    lang: "da",
-    bpm: 92,
-    from: "Traditional Ole sad på en knold og sang. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "C E G G A G E", eight: "C E G G A G E/ E/", fifteen: "C E G G A G E/ E/" },
-    { source: "F A A G F E D", eight: "F A A G F E D/ D/", fifteen: "F A A G F E D/ D/" },
-    { source: "E G c c B A G", eight: "E G c c B A G", fifteen: "E G c c B A G" },
-    { source: "G F E D C", eight: "G F E D C", fifteen: "G F E D C" },
-    ],
-    verses: [
-    ["Ole sad på en knold og sang", "om en pige så ven og god", "Kom og syng med Ole", "på den lille knold"],
-    ["Han sang om en pige så fin", "og om solen på himlen", "Ole synger endnu", "på den lille knold"],
-    ],
-  },
-  {
-    id: "bjoernen",
-    title: "Bjørnen sover",
-    lang: "da",
-    bpm: 88,
-    from: "Traditional Bjørnen sover. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "C C D E", eight: "C C D E", fifteen: "C C D E" },
-    { source: "F F E D", eight: "F F E D", fifteen: "F F E D" },
-    { source: "E F G A G", eight: "E F G/ G/ A G/ G/", fifteen: "E F G/ G/ A G/ G/" },
-    { source: "F E D C", eight: "F E/ E/ D C/ C/", fifteen: "F E/ E/ D C/ C/" },
-    ],
-    verses: [
-    ["Bjørnen sover", "i sit hul", "Den er ikke farlig", "bare man er stille"],
-    ["Bjørnen sover", "hele dagen", "Når den vågner, danser vi", "rundt omkring dens hul"],
-    ],
-  },
-  {
     id: "hoved",
     title: "Hoved, skulder, knæ og tå",
     lang: "da",
@@ -605,30 +386,12 @@ export const ADDED: readonly RepertoireSong[] = [
     tune: [
     { source: "C C D C E D C", eight: "C C D C E D C", fifteen: "C C D C E D C" },
     { source: "C E G G", eight: "C E G G", fifteen: "C E G G" },
-    { source: "G G A G F E D", eight: "G G A G F E D/ D/", fifteen: "G G A G F E D/ D/" },
+    { source: "G G A G F E D", eight: "G G A G F E D", fifteen: "G G A G F E D" },
     { source: "C E D C D E C", eight: "C E D C D E C", fifteen: "C E D C D E C" },
     ],
     verses: [
     ["Hoved, skulder, knæ og tå", "knæ og tå", "Øjne, ører, mund og næse", "hoved, skulder, knæ og tå"],
     ["Hoved, skulder, knæ og tå", "knæ og tå", "Øjne, ører, mund og næse", "hoved, skulder, knæ og tå"],
-    ],
-  },
-  {
-    id: "soeland",
-    title: "Jeg gik mig over sø og land",
-    lang: "da",
-    bpm: 104,
-    from: "Traditional Jeg gik mig over sø og land. Public domain.",
-    eightFold: "leap",
-    tune: [
-    { source: "C E G G A G E C", eight: "C E G G A G E C", fifteen: "C E G G A G E C" },
-    { source: "F A A G F E D", eight: "F A A G F E D/ D/", fifteen: "F A A G F E D/ D/" },
-    { source: "E G c c B A G", eight: "E G c c B A G/ G/", fifteen: "E G c c B A G/ G/" },
-    { source: "G F E D C", eight: "G F E D C", fifteen: "G F E D C" },
-    ],
-    verses: [
-    ["Jeg gik mig over sø og land", "der mødte jeg en gammel mand", "Goddag, goddag, min lille ven", "hvor skal du hen"],
-    ["Så mødte jeg en gammel mand", "han sagde til mig, lille ven", "Hvor skal du hen, min lille ven", "jeg går min vej"],
     ],
   },
 ];
