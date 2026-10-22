@@ -1,4 +1,15 @@
 @import "tailwindcss";
+/* Self-hosted type: no Google Fonts request, and it is cached for offline use. */
+@import "@fontsource/outfit/latin-400.css";
+@import "@fontsource/outfit/latin-ext-400.css";
+@import "@fontsource/outfit/latin-500.css";
+@import "@fontsource/outfit/latin-ext-500.css";
+@import "@fontsource/outfit/latin-600.css";
+@import "@fontsource/outfit/latin-ext-600.css";
+@import "@fontsource/fraunces/latin-500.css";
+@import "@fontsource/fraunces/latin-ext-500.css";
+@import "@fontsource/fraunces/latin-600.css";
+@import "@fontsource/fraunces/latin-ext-600.css";
 
 @theme {
   --color-wall: #f3efe6;
