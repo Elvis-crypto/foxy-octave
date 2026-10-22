@@ -1,4 +1,6 @@
+import { useSyncExternalStore } from "react";
 import { authClient, authEnabled } from "./client";
+import { clerkEnabled, clerkServerSnapshot, clerkSnapshot, subscribeClerk } from "./clerk";
 
 /** Normalized user shape used across the app, auth on or off. */
 export type AppUser = {
@@ -55,6 +57,11 @@ export type CurrentUserState = {
  * call keeps a stable hook order across every render of a given component.
  */
 export function useCurrentUserState(): CurrentUserState {
+  if (clerkEnabled) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- clerkEnabled is a build-time constant
+    const snap = useSyncExternalStore(subscribeClerk, clerkSnapshot, clerkServerSnapshot);
+    return { user: snap.user ? { ...snap.user, isDevFallback: false } : null, isPending: snap.isPending };
+  }
   if (!authEnabled) return { user: DEV_USER, isPending: false };
   // eslint-disable-next-line react-hooks/rules-of-hooks -- authEnabled is constant for the app's lifetime
   const { data, isPending } = authClient.useSession();

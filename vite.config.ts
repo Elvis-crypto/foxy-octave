@@ -146,6 +146,12 @@ function authPopupPlugin(): Plugin {
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
 export default defineConfig(({ command, isPreview }) => ({
+  define: {
+    // Public Clerk key (pk_…) for the browser. Empty keeps sign-in off.
+    __CLERK_PUBLISHABLE_KEY__: JSON.stringify(
+      process.env.CLERK_PUBLISHABLE_KEY?.trim() || process.env.VITE_CLERK_PUBLISHABLE_KEY?.trim() || "",
+    ),
+  },
   server: {
     host: "0.0.0.0",
     port: 8080,

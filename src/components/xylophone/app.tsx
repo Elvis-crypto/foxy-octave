@@ -23,7 +23,7 @@ import { clearToy, loadToy, saveToy } from "@/lib/xylophone/toy";
 import { loadDisk, adoptCore, mergeTunes, sheetChanged, writeDisk, type SavedTune } from "@/lib/xylophone/storage";
 import { CORE_STAMPS } from "@/lib/xylophone/repertoire";
 import { captureTune, listMyTunes, removeMyTune, saveMyTune } from "@/lib/xylophone/cloud";
-import { GROK_PROVIDERS, signIn } from "@/lib/auth/client";
+import { GROK_PROVIDERS, authEnabled, signIn } from "@/lib/auth/client";
 import { SignInGate, UserButton } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { copy, isLang, localizeError, UI_LANGS, type Lang } from "@/lib/xylophone/i18n";
@@ -1440,7 +1440,9 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
             </div>
             <p className="mt-3 text-sm text-muted">{text.account}</p>
             <div className="mt-1 rounded-2xl bg-wall px-3 py-3">
-              {isPending ? (
+              {!authEnabled ? (
+                <p className="text-xs text-pretty text-muted">{text.accountOff}</p>
+              ) : isPending ? (
                 <div className="h-11 animate-pulse rounded-full bg-track" />
               ) : (
                 <SignInGate
@@ -1451,7 +1453,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
                         <button
                           key={provider.providerId}
                           type="button"
-                          onClick={() => signIn(provider.providerId, { callbackURL: "/" })}
+                          onClick={() => void signIn(provider.providerId, { callbackURL: "/" }).catch(() => undefined)}
                           className="h-11 w-full rounded-full bg-ink text-sm font-medium text-wall"
                         >
                           {text.continueWith} {provider.label}

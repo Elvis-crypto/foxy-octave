@@ -77,6 +77,7 @@ export type Copy = {
   chimeMetal: string;
   account: string;
   accountHint: string;
+  accountOff: string;
   continueWith: string;
   keepBubble: string;
   keepClose: string;
@@ -196,6 +197,7 @@ export const copy: Record<Lang, Copy> = {
     chimeMetal: "Fém",
     account: "Fiók",
     accountHint: "A dalok ezen a telefonon maradnak, amíg be nem jelentkezel.",
+    accountOff: "A bejelentkezés most nem érhető el; a dalok ezen a telefonon maradnak.",
     continueWith: "Folytatás",
     keepBubble: "Ez a dal ezen a telefonon marad. A Beállításokban jelentkezhetsz be, ha máshol is kell.",
     keepClose: "Rendben",
@@ -313,6 +315,7 @@ export const copy: Record<Lang, Copy> = {
     chimeMetal: "Metal",
     account: "Account",
     accountHint: "Tunes stay on this phone until you sign in.",
+    accountOff: "Sign-in is not available right now; tunes stay on this phone.",
     continueWith: "Continue with",
     keepBubble: "This tune stays on this phone. Sign in under Options to take it with you.",
     keepClose: "OK",
@@ -430,6 +433,7 @@ export const copy: Record<Lang, Copy> = {
     chimeMetal: "Métal",
     account: "Compte",
     accountHint: "Les airs restent sur ce téléphone tant que tu n'es pas connecté.",
+    accountOff: "La connexion n'est pas disponible ; les airs restent sur ce téléphone.",
     continueWith: "Continuer avec",
     keepBubble: "Cet air reste sur ce téléphone. Connecte-toi dans les réglages pour l'emporter.",
     keepClose: "D'accord",
@@ -547,6 +551,7 @@ export const copy: Record<Lang, Copy> = {
     chimeMetal: "Metall",
     account: "Konto",
     accountHint: "Die Lieder bleiben auf diesem Telefon, bis du dich anmeldest.",
+    accountOff: "Anmelden ist gerade nicht möglich; die Lieder bleiben auf diesem Telefon.",
     continueWith: "Weiter mit",
     keepBubble: "Dieses Lied bleibt auf diesem Telefon. Melde dich unter Einstellungen an, wenn du es mitnehmen willst.",
     keepClose: "Gut",
@@ -664,6 +669,7 @@ export const copy: Record<Lang, Copy> = {
     chimeMetal: "Metal",
     account: "Cuenta",
     accountHint: "Las canciones se quedan en este teléfono hasta que entres.",
+    accountOff: "No se puede entrar ahora; las canciones se quedan en este teléfono.",
     continueWith: "Seguir con",
     keepBubble: "Esta canción se queda en este teléfono. Entra en Ajustes si quieres llevártela.",
     keepClose: "Vale",
@@ -781,6 +787,7 @@ export const copy: Record<Lang, Copy> = {
     chimeMetal: "Metal",
     account: "Konto",
     accountHint: "Sangene bliver på denne telefon, indtil du logger ind.",
+    accountOff: "Login er ikke muligt lige nu; sangene bliver på denne telefon.",
     continueWith: "Fortsæt med",
     keepBubble: "Denne sang bliver på denne telefon. Log ind under Indstillinger, hvis du vil tage den med.",
     keepClose: "OK",

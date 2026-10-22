@@ -1,6 +1,7 @@
 import { getRequest } from "@tanstack/react-start/server";
 import { gateIdentityEnabled } from "./gate-identity.server";
 import { auth, authConfigured } from "./server";
+import { clerkServerConfigured, verifyClerkToken } from "./clerk.server";
 
 /**
  * Server-side session resolution (server-only).
@@ -57,6 +58,10 @@ export type VerifiedUser = { id: string; email: string | null };
 export async function getSessionUser(
   bearerToken?: string,
 ): Promise<VerifiedUser | null> {
+  if (clerkServerConfigured) {
+    const id = await verifyClerkToken(bearerToken);
+    return id ? { id, email: null } : null;
+  }
   if (!authConfigured && !gateIdentityEnabled()) return null;
   const request = getRequest();
   if (!request) return null;
@@ -82,6 +87,11 @@ export async function getSessionUser(
  * - Auth disabled + no database -> the shared dev user id.
  */
 export async function requireUserId(bearerToken?: string): Promise<string> {
+  if (clerkServerConfigured) {
+    const id = await verifyClerkToken(bearerToken);
+    if (!id) throw new UnauthorizedError();
+    return id;
+  }
   if (!authConfigured && !gateIdentityEnabled()) {
     if (databaseConfigured) {
       throw new Error(
