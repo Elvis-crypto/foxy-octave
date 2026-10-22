@@ -1,0 +1,188 @@
+@import "tailwindcss";
+
+@theme {
+  --color-wall: #f3efe6;
+  --color-track: #e6dfd0;
+  --color-ink: #241f1c;
+  --color-muted: #6f6660;
+  --color-coral: #e08a7c;
+  --color-onbar: #fbf7ef;
+  --color-bar-ch: #e4dfa8;
+  --color-bar-b: #e6c85a;
+  --color-bar-a: #e07a28;
+  --color-bar-g: #e14b42;
+  --color-bar-f: #c9a39c;
+  --color-bar-e: #c5c9a8;
+  --color-bar-d: #6fb56a;
+  --color-bar-cl: #8b97a3;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: light;
+    background: var(--color-wall);
+  }
+
+  body {
+    margin: 0;
+    background: transparent;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--color-wall);
+    background-image:
+      radial-gradient(ellipse 70% 32% at 8% -6%, color-mix(in oklab, var(--color-coral) 42%, transparent), transparent 62%),
+      radial-gradient(ellipse 42% 24% at 100% 0%, color-mix(in oklab, var(--color-bar-a) 22%, transparent), transparent 58%),
+      url("/meadow.svg"),
+      url("/paws.svg");
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+    background-position: center, center, center bottom, 0 0;
+    background-size: auto, auto, 100% 168px, 280px 280px;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+}
+
+/* The toy colors stay these eight paints in either palette.
+   Phones in dark mode otherwise repaint the pale high C. */
+.bg-bar-ch { background-color: #e4dfa8; }
+.bg-bar-b { background-color: #e6c85a; }
+.bg-bar-a { background-color: #e07a28; }
+.bg-bar-g { background-color: #e14b42; }
+.bg-bar-f { background-color: #c9a39c; }
+.bg-bar-e { background-color: #c5c9a8; }
+.bg-bar-d { background-color: #6fb56a; }
+.bg-bar-cl { background-color: #8b97a3; }
+.bg-bar-ch2 { background-color: #f4f1d8; }
+.bg-bar-b2 { background-color: #f6e7b0; }
+.bg-bar-a2 { background-color: #f0b27a; }
+.bg-bar-g2 { background-color: #f0a09a; }
+.bg-bar-f2 { background-color: #e6d4ce; }
+.bg-bar-e2 { background-color: #e3e7d0; }
+.bg-bar-d2 { background-color: #a9d6a6; }
+
+button.bar-key,
+.bar-face {
+  -webkit-appearance: none;
+  appearance: none;
+  color-scheme: only light;
+}
+
+.bar-key.text-ink,
+.bar-face.text-ink {
+  color: #241f1c;
+}
+
+.bar-key.text-onbar,
+.bar-face.text-onbar {
+  color: #fbf7ef;
+}
+
+.bar-face {
+  box-shadow: inset 0 1px 0 color-mix(in oklab, white 48%, transparent);
+}
+
+.bar-key.is-next {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid #fff8ee;
+  outline-offset: 2px;
+  animation: bar-glow 0.85s ease-in-out infinite;
+}
+
+.syllable-line {
+  scrollbar-width: none;
+}
+
+.syllable-line::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes bar-glow {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.55);
+  }
+}
+
+.song-list {
+  scrollbar-width: thin;
+  scrollbar-color: #c4b8a8 transparent;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --color-wall: #1b1714;
+  --color-track: #2c2622;
+  --color-ink: #f3eee6;
+  --color-muted: #b5a89e;
+  --color-coral: #e39a8e;
+}
+
+html[data-theme="dark"] body::before {
+  background-image:
+    radial-gradient(ellipse 70% 32% at 8% -6%, color-mix(in oklab, var(--color-coral) 28%, transparent), transparent 62%),
+    radial-gradient(ellipse 42% 24% at 100% 0%, color-mix(in oklab, #e07a28 18%, transparent), transparent 58%),
+    url("/meadow-dark.svg"),
+    url("/paws-dark.svg");
+}
+
+html[data-theme="dark"] .song-list {
+  scrollbar-color: #5c534c transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    color-scheme: dark;
+    --color-wall: #1b1714;
+    --color-track: #2c2622;
+    --color-ink: #f3eee6;
+    --color-muted: #b5a89e;
+    --color-coral: #e39a8e;
+  }
+
+  html:not([data-theme]) body::before {
+    background-image:
+      radial-gradient(ellipse 70% 32% at 8% -6%, color-mix(in oklab, var(--color-coral) 28%, transparent), transparent 62%),
+      radial-gradient(ellipse 42% 24% at 100% 0%, color-mix(in oklab, #e07a28 18%, transparent), transparent 58%),
+      url("/meadow-dark.svg"),
+      url("/paws-dark.svg");
+  }
+
+  html:not([data-theme]) .song-list {
+    scrollbar-color: #5c534c transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-key {
+    transition: none;
+  }
+
+  .bar-key.is-next {
+    animation: none;
+    filter: brightness(1.3);
+  }
+}
