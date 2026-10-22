@@ -15,7 +15,7 @@ import {
 } from "@/lib/xylophone/audio";
 import { ParseError } from "@/lib/xylophone/parse";
 import { builtinCharts, compareSongs, findByTitle, compilePaste, compileWritten, linesFromChart, type SheetLine, type SongChart, type TuneLang } from "@/lib/xylophone/songs";
-import { FoxScene } from "./fox-scene";
+import { FoxScene, type FoxCue } from "./fox-scene";
 import { lookupSheet } from "@/lib/xylophone/lookup";
 import { centsBetween, nearestBar } from "@/lib/xylophone/pitch";
 import { gradeHit, shouldCall, tallyGrades, type Grade, type Tally, type Verdict } from "@/lib/xylophone/score";
@@ -212,6 +212,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
   const [reportBusy, setReportBusy] = useState(false);
   const [fromTag, setFromTag] = useState("");
   const [reportHint, setReportHint] = useState(false);
+  const [foxCue, setFoxCue] = useState<FoxCue>(null);
   const touchTapRef = useRef(false);
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   const [systemDark, setSystemDark] = useState(false);
@@ -387,6 +388,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
         beatRef.current = 0;
         setPhase("idle");
         setBeat(0);
+        setFoxCue({ kind: "done", at: performance.now() });
         return;
       }
       setBeat(beatNow);
@@ -763,6 +765,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     if (!grade) return;
     gradesRef.current.push(grade);
     const now = performance.now();
+    setFoxCue({ kind: grade.verdict === "next" ? "oops" : "good", at: now });
     if (!shouldCall(grade.verdict, lastCallRef.current, now)) return;
     lastCallRef.current = { verdict: grade.verdict, atMs: now };
     setCallout(grade.verdict);
@@ -1431,7 +1434,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
             className="h-8 min-w-0 flex-1 accent-coral"
           />
         </label>
-        <FoxScene id={chart.id} title={chart.title} playing={phase === "playing"} />
+        <FoxScene id={chart.id} title={chart.title} playing={phase === "playing"} paused={phase === "paused"} cue={foxCue} />
         <div
           className={`grid transition-[grid-template-rows,opacity] duration-[400ms] ease-out motion-reduce:transition-none ${optionsOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
         >

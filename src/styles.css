@@ -198,33 +198,102 @@ html[data-theme="dark"] .song-list {
   }
 }
 
-/* Fox along the bottom (fox-scene.tsx). Everything stops under reduced motion. */
-@keyframes fox-run { 0% { transform: translateX(-70px); } 100% { transform: translateX(calc(min(28rem, 100vw) + 10px)); } }
-@keyframes fox-step { 0%, 100% { transform: rotate(18deg); } 50% { transform: rotate(-18deg); } }
-@keyframes fox-sway { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-10deg); } }
-@keyframes fox-nod { 0%, 80%, 100% { transform: translateY(0); } 90% { transform: translateY(1.5px); } }
-@keyframes fox-breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.05); } }
-@keyframes fox-hop { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
-@keyframes fox-dance { 0%, 100% { transform: translateY(0) rotate(-6deg); } 25% { transform: translateY(-5px) rotate(0); } 50% { transform: translateY(0) rotate(6deg) scaleX(-1); } 75% { transform: translateY(-5px) scaleX(-1); } }
-@keyframes fox-fall { 0% { transform: translateY(-4px); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(40px) translateX(6px); opacity: 0.2; } }
-@keyframes fox-leaf { 0% { transform: translateY(-4px) rotate(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(40px) translateX(-14px) rotate(260deg); opacity: 0.3; } }
-@keyframes fox-drop { 0% { transform: translateY(-6px); opacity: 0; } 20% { opacity: 0.9; } 100% { transform: translateY(40px); opacity: 0; } }
+/* Fox along the bottom (fox-scene.tsx). Transforms and opacity only, so it stays on the compositor.
+   Every part has its own loop; the behavior class on .fx-root picks which loops run. */
+@keyframes fox-fall { 0% { transform: translateY(-4px); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(48px) translateX(6px); opacity: 0.2; } }
+@keyframes fox-leaf { 0% { transform: translateY(-4px) rotate(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(48px) translateX(-14px) rotate(260deg); opacity: 0.3; } }
+@keyframes fox-drop { 0% { transform: translateY(-6px); opacity: 0; } 20% { opacity: 0.9; } 100% { transform: translateY(48px); opacity: 0; } }
 @keyframes fox-twinkle { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
 @keyframes fox-zzz { 0% { transform: translate(0, 4px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(8px, -10px); opacity: 0; } }
 @keyframes fox-flutter { 0%, 100% { transform: translate(0, 0) scaleX(1); } 25% { transform: translate(6px, -6px) scaleX(0.6); } 50% { transform: translate(12px, -2px) scaleX(1); } 75% { transform: translate(6px, -8px) scaleX(0.6); } }
 @keyframes fox-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
-@keyframes fox-note { 0% { transform: translateY(4px); opacity: 0; } 40% { opacity: 1; } 100% { transform: translateY(-12px); opacity: 0; } }
 
-.fox-run { left: 0; animation: fox-run 16s linear infinite; }
-.is-playing .fox-run { animation-duration: 9s; }
-.fox-hop { animation: fox-run 16s linear infinite, fox-hop 0.5s ease-in-out infinite; }
-.fox-legs-a { transform-box: fill-box; transform-origin: top; animation: fox-step 0.45s ease-in-out infinite; }
-.fox-legs-b { transform-box: fill-box; transform-origin: top; animation: fox-step 0.45s ease-in-out infinite reverse; }
-.fox-tail { transform-box: view-box; transform-origin: 18px 14px; animation: fox-sway 1.6s ease-in-out infinite; }
-.fox-nod { animation: fox-nod 4s ease-in-out infinite; }
-.fox-breathe { transform-box: fill-box; transform-origin: bottom; animation: fox-breathe 3.2s ease-in-out infinite; }
-.fox-dance { animation: fox-dance 1.4s ease-in-out infinite; }
-.is-playing .fox-dance { animation-duration: 0.9s; }
+@keyframes fx-sway { 0%, 100% { transform: rotate(4deg); } 50% { transform: rotate(-8deg); } }
+@keyframes fx-wag { 0%, 100% { transform: rotate(14deg); } 50% { transform: rotate(-22deg); } }
+@keyframes fx-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+@keyframes fx-twitch { 0%, 86%, 100% { transform: rotate(0); } 89% { transform: rotate(-14deg); } 92% { transform: rotate(4deg); } }
+@keyframes fx-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.012, 1.035); } }
+@keyframes fx-step { 0%, 100% { transform: rotate(24deg); } 50% { transform: rotate(-24deg); } }
+@keyframes fx-bob { 0%, 100% { transform: translateY(0) scale(1, 1); } 25% { transform: translateY(-1.4px) scale(0.99, 1.02); } 50% { transform: translateY(0) scale(1.01, 0.98); } 75% { transform: translateY(-1.4px) scale(0.99, 1.02); } }
+@keyframes fx-tilt { 0%, 100% { transform: rotate(-4deg); } 40%, 60% { transform: rotate(-16deg); } }
+@keyframes fx-sniff { 0%, 100% { transform: rotate(26deg); } 25% { transform: rotate(30deg); } 50% { transform: rotate(25deg); } 75% { transform: rotate(31deg); } }
+@keyframes fx-sniffwalk { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+@keyframes fx-pounce {
+  0% { transform: translate(0, 0) rotate(0) scale(1, 1); }
+  22% { transform: translate(-2px, 3px) rotate(0) scale(1.06, 0.84); }
+  45% { transform: translate(10px, -18px) rotate(-22deg) scale(0.94, 1.1); }
+  62% { transform: translate(22px, 6px) rotate(68deg) scale(1, 1); }
+  82% { transform: translate(22px, 6px) rotate(64deg) scale(1.02, 0.96); }
+  100% { transform: translate(0, 0) rotate(0) scale(1, 1); }
+}
+@keyframes fx-puff { 0%, 55% { transform: translateX(22px) scale(0.2); opacity: 0; } 65% { transform: translateX(26px) scale(1.2, 1); opacity: 1; } 100% { transform: translateX(26px) scale(1.6, 0.6); opacity: 0; } }
+@keyframes fx-chase { 0% { transform: translateY(0) scaleX(1); } 12% { transform: translateY(-3px) scaleX(1); } 25% { transform: translateY(0) scaleX(-1); } 37% { transform: translateY(-3px) scaleX(-1); } 50% { transform: translateY(0) scaleX(1); } 62% { transform: translateY(-3px) scaleX(1); } 75% { transform: translateY(0) scaleX(-1); } 87% { transform: translateY(-3px) scaleX(-1); } 100% { transform: translateY(0) scaleX(1); } }
+@keyframes fx-chasehead { 0%, 100% { transform: rotate(18deg) translateX(-3px); } }
+@keyframes fx-yawnhead { 0%, 15%, 85%, 100% { transform: rotate(0); } 35%, 65% { transform: rotate(-18deg); } }
+@keyframes fx-yawnmouth { 0%, 15%, 85%, 100% { transform: scale(0.2); } 35%, 65% { transform: scale(1.5, 2.6); } }
+@keyframes fx-roll { 0% { transform: translate(0, 0) rotate(0); } 15% { transform: translate(0, 2px) scale(1.06, 0.9); } 60% { transform: translate(16px, -4px) rotate(300deg); } 80% { transform: translate(20px, 0) rotate(360deg) scale(1.05, 0.92); } 100% { transform: translate(20px, 0) rotate(360deg); } }
+@keyframes fx-catch { 0%, 100% { transform: translateY(0) scale(1, 1); } 20% { transform: translateY(2px) scale(1.05, 0.9); } 50% { transform: translateY(-12px) scale(0.95, 1.08); } 70% { transform: translateY(0) scale(1.05, 0.93); } }
+@keyframes fx-catchhead { 0%, 100% { transform: rotate(0); } 40%, 60% { transform: rotate(-32deg); } }
+@keyframes fx-falling { 0% { transform: translate(6px, -30px); opacity: 0; } 25% { opacity: 1; } 50% { transform: translate(0, -2px); opacity: 1; } 55%, 100% { transform: translate(0, 2px); opacity: 0; } }
+@keyframes fx-hop { 0%, 100% { transform: translateY(0) scale(1, 1); } 12% { transform: translateY(1px) scale(1.08, 0.86); } 30% { transform: translateY(-14px) scale(0.92, 1.1); } 46% { transform: translateY(0) scale(1.08, 0.9); } 58% { transform: translateY(1px) scale(1.06, 0.88); } 76% { transform: translateY(-11px) scale(0.94, 1.08) rotate(-8deg); } 90% { transform: translateY(0) scale(1.05, 0.94); } }
+@keyframes fx-confused { 0% { transform: rotate(0); } 25%, 80% { transform: rotate(-24deg); } 100% { transform: rotate(0); } }
+@keyframes fx-dance { 0%, 100% { transform: translateY(0) rotate(-6deg) scale(1, 1); } 25% { transform: translateY(-6px) rotate(0) scale(0.96, 1.06); } 50% { transform: translateY(0) rotate(6deg) scale(1.05, 0.94); } 75% { transform: translateY(-6px) rotate(0) scale(0.96, 1.06); } }
+@keyframes fx-bubble { 0% { transform: translateY(4px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(-6px); opacity: 0; } }
+@keyframes fx-sitbody { to { transform: rotate(-24deg) translate(2px, 1px); } }
+
+.fx-mover { will-change: transform; }
+.fx-root { position: relative; }
+.fx-root g, .fx-root path, .fx-root ellipse { transform-box: view-box; }
+.fx-tail { animation: fx-sway 1.8s ease-in-out infinite; }
+.fx-eye { animation: fx-blink 4.2s linear infinite; }
+.fx-shut { opacity: 0; }
+.fx-ear-front { animation: fx-twitch 5.3s ease-in-out infinite; }
+.fx-ear-back { animation: fx-twitch 7.1s ease-in-out 1.3s infinite; }
+.fx-torso { animation: fx-breathe 3s ease-in-out infinite; }
+.fx-mouth { transform: scale(0.2); }
+
+/* Walk and trot: diagonal legs swing in turn, the body bobs. */
+.fx-walk .fx-leg-a, .fx-trot .fx-leg-a { animation: fx-step 0.62s ease-in-out infinite; }
+.fx-walk .fx-leg-b, .fx-trot .fx-leg-b { animation: fx-step 0.62s ease-in-out infinite reverse; }
+.fx-walk .fx-whole, .fx-trot .fx-whole { animation: fx-bob 0.62s ease-in-out infinite; }
+.fx-trot .fx-leg-a, .fx-trot .fx-leg-b, .fx-trot .fx-whole { animation-duration: 0.36s; }
+.fx-trot .fx-tail { animation: fx-sway 0.72s ease-in-out infinite; }
+
+/* Sitting: rear down, chest up; tilt turns the head toward the music. */
+.fx-sit .fx-whole, .fx-tilt .fx-whole, .fx-yawn .fx-whole, .fx-confused .fx-whole, .fx-wag .fx-whole { transform: rotate(-14deg); }
+.fx-sit .fx-tail, .fx-tilt .fx-tail { animation-duration: 3.2s; }
+.fx-tilt .fx-head { animation: fx-tilt 3.6s ease-in-out infinite; }
+.fx-sniff .fx-head { animation: fx-sniff 0.7s ease-in-out infinite; }
+.fx-sniff .fx-whole { animation: fx-sniffwalk 1.6s ease-in-out infinite; }
+.fx-pounce .fx-whole { animation: fx-pounce 2.4s cubic-bezier(0.4, 0, 0.3, 1) both; }
+.fx-pounce .fx-tail { animation: fx-wag 0.3s ease-in-out infinite; }
+.fx-puff { animation: fx-puff 2.4s ease-out both; }
+.fx-chase .fx-whole { animation: fx-chase 1.2s ease-in-out 2; }
+.fx-chase .fx-head { transform: rotate(18deg); }
+.fx-chase .fx-leg-a { animation: fx-step 0.3s ease-in-out infinite; }
+.fx-chase .fx-leg-b { animation: fx-step 0.3s ease-in-out infinite reverse; }
+.fx-chase .fx-tail { animation: fx-wag 0.3s ease-in-out infinite; }
+.fx-yawn .fx-head { animation: fx-yawnhead 2.6s ease-in-out both; }
+.fx-yawn .fx-mouth { animation: fx-yawnmouth 2.6s ease-in-out both; }
+.fx-yawn .fx-eye { animation: none; transform: scaleY(0.15); }
+.fx-roll .fx-whole { animation: fx-roll 1.8s ease-in-out both; }
+.fx-catch .fx-whole { animation: fx-catch 2s ease-in-out both; }
+.fx-catch .fx-head { animation: fx-catchhead 2s ease-in-out both; }
+.fx-falling { animation: fx-falling 2s ease-in both; }
+.fx-wag .fx-tail { animation: fx-wag 0.22s ease-in-out infinite; }
+.fx-wag .fx-head { transform: rotate(-8deg); }
+.fx-hop .fx-whole { animation: fx-hop 1.6s ease-in-out both; }
+.fx-hop .fx-tail { animation: fx-wag 0.25s ease-in-out infinite; }
+.fx-confused .fx-head { animation: fx-confused 1.8s ease-in-out both; }
+.fx-confused .fx-ear-front { animation: none; transform: rotate(-16deg); }
+.fx-dance .fx-whole { animation: fx-dance 0.9s ease-in-out infinite; }
+.fx-dance .fx-leg-a { animation: fx-step 0.45s ease-in-out infinite; }
+.fx-dance .fx-leg-b { animation: fx-step 0.45s ease-in-out infinite reverse; }
+.fx-dance .fx-tail { animation: fx-wag 0.45s ease-in-out infinite; }
+.fx-bubble { animation: fx-bubble 1.4s ease-out infinite; }
+.fx-breathe { animation: fx-breathe 3.6s ease-in-out infinite; }
+.fx-tail-curl { animation: fx-sway 4s ease-in-out infinite; }
+
 .fox-flake { animation: fox-fall 4s linear infinite; }
 .fox-leaf { animation: fox-leaf 5.5s ease-in infinite; }
 .fox-drop { animation: fox-drop 1.2s linear infinite; }
@@ -232,12 +301,13 @@ html[data-theme="dark"] .song-list {
 .fox-zzz { animation: fox-zzz 3s ease-out infinite; }
 .fox-butterfly { animation: fox-flutter 1.2s ease-in-out infinite; }
 .fox-bob { animation: fox-bob 1.8s ease-in-out infinite; }
-.fox-note { animation: fox-note 1.6s ease-out infinite; }
+
+/* A hidden tab costs nothing. */
+.fox-scene.is-hidden, .fox-scene.is-hidden * { animation-play-state: paused !important; }
 
 @media (prefers-reduced-motion: reduce) {
   .fox-scene,
-  .fox-scene * { animation: none !important; }
-  .fox-scene .fox-run { left: calc(50% - 32px); }
+  .fox-scene * { animation: none !important; transition: none !important; }
   .fox-scene .fox-flake { top: 12px; }
   .fox-scene .fox-leaf { top: 20px; }
   .fox-scene .fox-drop { top: 10px; }

@@ -286,3 +286,15 @@ it("notes with no bar are counted after the best key is chosen", async () => {
 it("every recorder song is in the book", () => {
   assert.equal(RECORDER.length, 45);
 });
+
+it("the fox picks behaviors that fit the song and the moment", async () => {
+  const { nextBehavior, sceneFor, BEHAVIORS } = await import("../../components/xylophone/fox-scene.tsx");
+  assert.equal(sceneFor("jingle-bells", "Jingle Bells"), "winter");
+  assert.equal(sceneFor("brahms", "x"), "night");
+  assert.equal(sceneFor("x", "Tavaszi dal"), "spring");
+  for (let r = 0; r < 1; r += 0.01) {
+    assert.ok(BEHAVIORS.includes(nextBehavior("night", false, false, r)));
+    assert.ok(["dance", "hop", "chase"].includes(nextBehavior("dance", true, false, r)));
+    assert.ok(["sit", "tilt", "sniff", "yawn", "chase", "roll", "walk"].includes(nextBehavior("winter", false, true, r)));
+  }
+});
