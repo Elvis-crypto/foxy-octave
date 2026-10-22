@@ -16,9 +16,11 @@
     "preview:stop": "node scripts/preview.mjs stop",
     "typecheck": "tsc --noEmit",
     "check:auth": "node scripts/check-auth-invariant.mjs",
-    "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts src/lib/xylophone/library.test.ts src/lib/xylophone/score.test.ts",
+    "test": "tsx --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts src/lib/xylophone/library.test.ts src/lib/xylophone/score.test.ts",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "book:recorder": "tsx scripts/book/import-recorder.ts",
+    "test:template": "node --test scripts/*.test.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.4",
@@ -92,6 +94,7 @@
     "globals": "^15.15.0",
     "playwright": "^1.62.0",
     "prettier": "^3.4.0",
+    "tsx": "^4.23.15",
     "typescript-eslint": "^8.56.1"
   }
 }

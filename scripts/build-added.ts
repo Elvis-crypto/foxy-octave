@@ -505,7 +505,7 @@ function expand(events: { midi: number | null; beats: number }[], syllables: num
       out.push(event);
       continue;
     }
-    let pieces = [event.beats];
+    const pieces = [event.beats];
     for (let k = 0; k < (splits[index] ?? 0); k += 1) {
       let long = 0;
       for (let t = 1; t < pieces.length; t += 1) if (pieces[t]! > pieces[long]!) long = t;
