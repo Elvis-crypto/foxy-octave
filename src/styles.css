@@ -197,3 +197,48 @@ html[data-theme="dark"] .song-list {
     filter: brightness(1.3);
   }
 }
+
+/* Fox along the bottom (fox-scene.tsx). Everything stops under reduced motion. */
+@keyframes fox-run { 0% { transform: translateX(-70px); } 100% { transform: translateX(calc(min(28rem, 100vw) + 10px)); } }
+@keyframes fox-step { 0%, 100% { transform: rotate(18deg); } 50% { transform: rotate(-18deg); } }
+@keyframes fox-sway { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-10deg); } }
+@keyframes fox-nod { 0%, 80%, 100% { transform: translateY(0); } 90% { transform: translateY(1.5px); } }
+@keyframes fox-breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.05); } }
+@keyframes fox-hop { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+@keyframes fox-dance { 0%, 100% { transform: translateY(0) rotate(-6deg); } 25% { transform: translateY(-5px) rotate(0); } 50% { transform: translateY(0) rotate(6deg) scaleX(-1); } 75% { transform: translateY(-5px) scaleX(-1); } }
+@keyframes fox-fall { 0% { transform: translateY(-4px); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(40px) translateX(6px); opacity: 0.2; } }
+@keyframes fox-leaf { 0% { transform: translateY(-4px) rotate(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(40px) translateX(-14px) rotate(260deg); opacity: 0.3; } }
+@keyframes fox-drop { 0% { transform: translateY(-6px); opacity: 0; } 20% { opacity: 0.9; } 100% { transform: translateY(40px); opacity: 0; } }
+@keyframes fox-twinkle { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes fox-zzz { 0% { transform: translate(0, 4px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(8px, -10px); opacity: 0; } }
+@keyframes fox-flutter { 0%, 100% { transform: translate(0, 0) scaleX(1); } 25% { transform: translate(6px, -6px) scaleX(0.6); } 50% { transform: translate(12px, -2px) scaleX(1); } 75% { transform: translate(6px, -8px) scaleX(0.6); } }
+@keyframes fox-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes fox-note { 0% { transform: translateY(4px); opacity: 0; } 40% { opacity: 1; } 100% { transform: translateY(-12px); opacity: 0; } }
+
+.fox-run { left: 0; animation: fox-run 16s linear infinite; }
+.is-playing .fox-run { animation-duration: 9s; }
+.fox-hop { animation: fox-run 16s linear infinite, fox-hop 0.5s ease-in-out infinite; }
+.fox-legs-a { transform-box: fill-box; transform-origin: top; animation: fox-step 0.45s ease-in-out infinite; }
+.fox-legs-b { transform-box: fill-box; transform-origin: top; animation: fox-step 0.45s ease-in-out infinite reverse; }
+.fox-tail { transform-box: view-box; transform-origin: 18px 14px; animation: fox-sway 1.6s ease-in-out infinite; }
+.fox-nod { animation: fox-nod 4s ease-in-out infinite; }
+.fox-breathe { transform-box: fill-box; transform-origin: bottom; animation: fox-breathe 3.2s ease-in-out infinite; }
+.fox-dance { animation: fox-dance 1.4s ease-in-out infinite; }
+.is-playing .fox-dance { animation-duration: 0.9s; }
+.fox-flake { animation: fox-fall 4s linear infinite; }
+.fox-leaf { animation: fox-leaf 5.5s ease-in infinite; }
+.fox-drop { animation: fox-drop 1.2s linear infinite; }
+.fox-star { animation: fox-twinkle 2.4s ease-in-out infinite; }
+.fox-zzz { animation: fox-zzz 3s ease-out infinite; }
+.fox-butterfly { animation: fox-flutter 1.2s ease-in-out infinite; }
+.fox-bob { animation: fox-bob 1.8s ease-in-out infinite; }
+.fox-note { animation: fox-note 1.6s ease-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fox-scene,
+  .fox-scene * { animation: none !important; }
+  .fox-scene .fox-run { left: calc(50% - 32px); }
+  .fox-scene .fox-flake { top: 12px; }
+  .fox-scene .fox-leaf { top: 20px; }
+  .fox-scene .fox-drop { top: 10px; }
+}
