@@ -118,18 +118,30 @@ export const captureTune = createServerFn({ method: "POST" })
     const { createHash } = await import("node:crypto");
     const lines = data.lines ?? [];
     const wide = data.wide ?? lines;
-    const body = `${data.title}\n${lines.map((line) => `${line.lyric}\n${line.abc}`).join("\n")}\n--\n${wide.map((line) => `${line.lyric}\n${line.abc}`).join("\n")}`;
+    // The reference is part of the identity, so a citation-only fix is its own row.
+    const body = `${data.title}\n${data.from ?? ""}\n${lines.map((line) => `${line.lyric}\n${line.abc}`).join("\n")}\n--\n${wide.map((line) => `${line.lyric}\n${line.abc}`).join("\n")}`;
     const id = createHash("sha256").update(body).digest("hex");
+    const { clientKey, overLimit, RateLimited, CAPTURE_LIMIT } = await import("./limit.server");
+    const key = clientKey();
     const sql = await getSql();
+    const [counts] = await sql<{ mine: number; everyone: number }>`
+      select
+        count(*) filter (where client_key = ${key} and created_at > now() - make_interval(mins => ${CAPTURE_LIMIT.clientMinutes}))::int as mine,
+        count(*)::int as everyone
+      from captures where created_at > now() - interval '1 hour'
+    `;
+    if (overLimit(CAPTURE_LIMIT, counts?.mine ?? 0, counts?.everyone ?? 0)) throw new RateLimited();
     const rows = await sql<{ id: string }>`
-      insert into captures (id, tune_id, title, bpm, lines, wide)
+      insert into captures (id, tune_id, title, bpm, lines, wide, source, client_key)
       values (
         ${id},
         ${data.id},
         ${data.title},
         ${data.bpm},
         ${JSON.stringify(data.lines)}::jsonb,
-        ${data.wide ? JSON.stringify(data.wide) : null}::jsonb
+        ${data.wide ? JSON.stringify(data.wide) : null}::jsonb,
+        ${data.from ?? null},
+        ${key}
       )
       on conflict (id) do nothing
       returning id
