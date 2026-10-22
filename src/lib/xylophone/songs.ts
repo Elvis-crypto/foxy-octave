@@ -1,6 +1,7 @@
 import { foldEvents, parseEvents, ParseError } from "./parse.ts";
 import { REPERTOIRE } from "./repertoire.ts";
 import { barsForSpan, laneOf, type Span } from "./theory.ts";
+import { syllabifyLine } from "./syllables.ts";
 
 export type ChartNote = {
   lane: number;
@@ -48,6 +49,27 @@ export type SongChart = {
 
 type Part = { lyric: string; abc: string };
 
+/** A later verse can have more syllables than the tune line has notes. Give each extra syllable
+ * its own note by halving the longest sounding note (earliest first), so the dot can land on it.
+ * The pitch stays the same; only the rhythm is divided. Shipped songs only. */
+export function splitForWords<E extends { midi: number | null; beats: number }>(events: E[], lyric: string): E[] {
+  const sounding = events.filter((event) => event.midi !== null).length;
+  const want = lyric.trim() ? syllabifyLine(lyric).length : 0;
+  if (sounding === 0 || want <= sounding) return events;
+  const out = events.slice();
+  for (let extra = Math.min(want - sounding, sounding * 2); extra > 0; extra -= 1) {
+    let best = -1;
+    for (let i = 0; i < out.length; i += 1) {
+      if (out[i]!.midi === null) continue;
+      if (best < 0 || out[i]!.beats > out[best]!.beats + 1e-9) best = i;
+    }
+    if (best < 0 || out[best]!.beats < 0.25 - 1e-9) break;
+    const half = { ...out[best]!, beats: out[best]!.beats / 2 };
+    out.splice(best, 1, half, { ...half });
+  }
+  return out;
+}
+
 /** One line of a sheet: the words, and the notes that actually play. */
 export type SheetLine = { lyric: string; abc: string };
 
@@ -69,7 +91,7 @@ export function compileParts(
   const chunks = parts.map((part, line) => ({
     lyric: part.lyric,
     line,
-    events: parseEvents(part.abc),
+    events: source === "builtin" ? splitForWords(parseEvents(part.abc), part.lyric) : parseEvents(part.abc),
   }));
   const placed = foldEvents(
     chunks.flatMap((chunk) => chunk.events),
