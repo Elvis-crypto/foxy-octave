@@ -14,7 +14,7 @@ import {
   type Chime,
 } from "@/lib/xylophone/audio";
 import { ParseError } from "@/lib/xylophone/parse";
-import { builtinCharts, compareSongs, compilePaste, compileWritten, linesFromChart, type SheetLine, type SongChart, type TuneLang } from "@/lib/xylophone/songs";
+import { builtinCharts, compareSongs, findByTitle, compilePaste, compileWritten, linesFromChart, type SheetLine, type SongChart, type TuneLang } from "@/lib/xylophone/songs";
 import { lookupSheet } from "@/lib/xylophone/lookup";
 import { centsBetween, nearestBar } from "@/lib/xylophone/pitch";
 import { gradeHit, shouldCall, tallyGrades, type Grade, type Tally, type Verdict } from "@/lib/xylophone/score";
@@ -29,7 +29,7 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { copy, isLang, localizeError, UI_LANGS, type Lang } from "@/lib/xylophone/i18n";
 import { REPERTOIRE } from "@/lib/xylophone/repertoire";
 import { followSyllables } from "@/lib/xylophone/syllables";
-import { saveReport } from "@/lib/xylophone/reports";
+import { countPartnerVisit, saveReport } from "@/lib/xylophone/reports";
 import { barsForSpan, type Bar, type Span } from "@/lib/xylophone/theory";
 
 const KEYS = ["A", "S", "D", "F", "G", "H", "J", "K"];
@@ -41,6 +41,13 @@ const TIP_WALLETS = [
   { id: "btc", address: "bc1q5p5anqgcrhh8876xwwl6jmd4eslwr6g7kgfp79" },
   { id: "tap", address: "bc1penwr0pnpqt6wzjewzad0g6jnjvam00gw2hwjws7nqj4ahsu79yrqtgleyz" },
 ] as const;
+/** Hosted card checkouts. Remove an entry to drop that amount; with none left (and no wallets) the jar hides. */
+const TIP_CARDS: readonly (readonly [string, string])[] = [
+  ["500 Ft", "https://buy.stripe.com/7sYeVdaQm7VC248gJZ1sQ00"],
+  ["1 500 Ft", "https://buy.stripe.com/5kQ9AT6A63Fm7os1P51sQ02"],
+  ["4 000 Ft", "https://buy.stripe.com/eVqfZh9Migs8104bpF1sQ01"],
+];
+const TIP_JAR = TIP_CARDS.length > 0 || TIP_WALLETS.length > 0;
 
 function compileStored(tune: SavedTune, span: Span): SongChart {
   const lines = span === 15 && tune.wide?.length ? tune.wide : tune.lines;
@@ -203,6 +210,8 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
   const [reportNote, setReportNote] = useState("");
   const [reportBusy, setReportBusy] = useState(false);
   const [fromTag, setFromTag] = useState("");
+  const [reportHint, setReportHint] = useState(false);
+  const touchTapRef = useRef(false);
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   const [systemDark, setSystemDark] = useState(false);
   const resolvedTheme = theme ?? (systemDark ? "dark" : "light");
@@ -303,7 +312,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     }
     setKeepClosed(Boolean(disk.keepClosed));
     setDiskReady(true);
-    toyRef.current = loadToy();
+    toyRef.current = loadToy(span);
   }, []);
 
   useEffect(() => {
@@ -407,6 +416,18 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
   }, [theme, resolvedTheme]);
 
   useEffect(() => {
+    // Offline: our own small service worker (public/sw.js). Not in dev, where it would cache the dev server.
+    if (!import.meta.env.PROD || !("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!reportHint) return;
+    const timer = window.setTimeout(() => setReportHint(false), 3500);
+    return () => window.clearTimeout(timer);
+  }, [reportHint]);
+
+  useEffect(() => {
     if (!callout) return;
     const timer = window.setTimeout(() => setCallout(null), 700);
     return () => window.clearTimeout(timer);
@@ -414,7 +435,17 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
 
   useEffect(() => {
     const from = new URLSearchParams(window.location.search).get("from") ?? "";
-    if (/^[a-z0-9-]{1,24}$/i.test(from)) setFromTag(from);
+    if (!/^[a-z0-9-]{1,24}$/i.test(from)) return;
+    setFromTag(from);
+    // Count the visit once per tab session, so a refresh is not a second visit.
+    const seenKey = `little-octave.from.${from.toLowerCase()}`;
+    try {
+      if (sessionStorage.getItem(seenKey)) return;
+      sessionStorage.setItem(seenKey, "1");
+    } catch {
+      // Private mode: still count it once for this load.
+    }
+    void countPartnerVisit({ data: { tag: from } }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -670,7 +701,8 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     halt();
     setBrowsing(false);
     setTally(null);
-    const profile = toyRef.current ?? loadToy();
+    const held = toyRef.current;
+    const profile = held && held.length === span ? held : loadToy(span);
     try {
       if (!profile) {
         learnedRef.current = [];
@@ -690,7 +722,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
   }
 
   async function retune() {
-    clearToy();
+    clearToy(span);
     toyRef.current = null;
     halt();
     setBrowsing(false);
@@ -712,8 +744,8 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
       if (learned.some((known) => Math.abs(centsBetween(freq, known)) < 50)) return;
       learned.push(freq);
       setTuneStep(learned.length);
-      if (learned.length < 8) return;
-      const next = learned.slice(0, 8);
+      if (learned.length < span) return;
+      const next = learned.slice(0, span);
       toyRef.current = next;
       saveToy(next);
       startPlay();
@@ -724,7 +756,8 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     if (!profile) return;
     const heard = nearestBar(freq, profile);
     if (heard === null) return;
-    const lane = baseLane(heard, span);
+    // Fifteen learned bars are already in lane order; eight sit after the lighter octave.
+    const lane = profile.length === 15 ? heard : baseLane(heard, span);
     const grade = gradeHit(chartRef.current.notes, { lane, beat: beatRef.current }, bpmRef.current, takenRef.current);
     if (!grade) return;
     gradesRef.current.push(grade);
@@ -871,7 +904,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
   async function lookupAndSave(raw: string) {
     const name = raw.trim();
     if (name.length < 2 || lookingRef.current) return;
-    const exact = charts.find((item) => normalize(item.title) === normalize(name));
+    const exact = findByTitle(charts, name);
     if (exact) {
       choose(exact);
       setQuery("");
@@ -1012,7 +1045,9 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
         <div className="flex min-w-0 items-center gap-2">
           <img src="/fox-head.png" alt="" width={176} height={196} className="size-9 shrink-0 object-contain" />
           <div className="min-w-0">
-            <p className="text-xs text-muted">{text.brand}</p>
+            <p className="truncate text-xs text-muted">
+              {chart.bent ? <span title={text.bentHint}>{text.bent.replace("{n}", String(chart.bent))}</span> : text.brand}
+            </p>
             <h1 className="truncate font-display text-xl leading-tight font-medium">{chart.title}</h1>
           </div>
         </div>
@@ -1021,7 +1056,16 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
             <button
               type="button"
               aria-label={text.report}
+              onPointerDown={(event) => {
+                touchTapRef.current = event.pointerType === "touch";
+              }}
               onClick={() => {
+                // A finger never hovers: the first touch tap shows the hint, a second tap opens the sheet.
+                if (touchTapRef.current && !reportHint) {
+                  setReportHint(true);
+                  return;
+                }
+                setReportHint(false);
                 setReportOpen(true);
                 setReportNote("");
               }}
@@ -1031,7 +1075,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
             </button>
             <span
               role="tooltip"
-              className={`pointer-events-none absolute top-full right-0 z-30 mt-2 hidden w-40 rounded-xl bg-ink px-3 py-2 text-left text-xs font-medium leading-snug text-pretty text-wall ${reportOpen ? "" : "group-hover:block"}`}
+              className={`pointer-events-none absolute top-full right-0 z-30 mt-2 hidden w-40 rounded-xl bg-ink px-3 py-2 text-left text-xs font-medium leading-snug text-pretty text-wall ${reportOpen ? "" : reportHint ? "block" : "group-hover:block"}`}
             >
               {text.report}
             </span>
@@ -1190,7 +1234,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
         <div className={`flex shrink-0 items-end gap-1 transition-[height,margin-top] duration-[400ms] ease-out motion-reduce:transition-none ${onStage && syllablesOn ? "mt-1 h-[4.125rem]" : "mt-1 h-11"}`}>
           <div ref={syllableLine} className="syllable-line h-full min-w-0 flex-1 overflow-x-auto">
             {turn === "tune" ? (
-              <p className="flex h-full items-center justify-center text-center font-display text-base leading-none">{`${text.strikeThis} ${tuneStep + 1} / 8`}</p>
+              <p className="flex h-full items-center justify-center text-center font-display text-base leading-none">{`${text.strikeThis} ${tuneStep + 1} / ${span}`}</p>
             ) : syllablesOn && followed.parts.length > 0 ? (
               <div className="relative flex h-full w-max min-w-full items-end justify-center px-1 pb-0.5">
                 <p className="whitespace-nowrap text-center font-display text-base leading-none text-ink">
@@ -1308,7 +1352,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
             const hot =
               held.includes(lane) ||
               (phase === "playing" && chart.notes.some((note) => note.lane === lane && Math.abs(note.startBeat - beat) < 0.12));
-            const coaching = turn === "tune" && lane === baseLane(tuneStep, span);
+            const coaching = turn === "tune" && lane === tuneStep;
             return (
               <button
                 key={bar.id}
@@ -1466,7 +1510,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
                 </SignInGate>
               )}
             </div>
-            {fromTag ? null : (
+            {fromTag || !TIP_JAR ? null : (
               <button
                 type="button"
                 aria-expanded={supportOpen}
@@ -1488,14 +1532,10 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
                 </span>
               </button>
             )}
-            {supportOpen && !fromTag ? (
+            {supportOpen && !fromTag && TIP_JAR ? (
               <div className="mt-2">
                 <div className="grid grid-cols-3 gap-2">
-                  {([
-                    ["500 Ft", "https://buy.stripe.com/7sYeVdaQm7VC248gJZ1sQ00"],
-                    ["1 500 Ft", "https://buy.stripe.com/5kQ9AT6A63Fm7os1P51sQ02"],
-                    ["4 000 Ft", "https://buy.stripe.com/eVqfZh9Migs8104bpF1sQ01"],
-                  ] as const).map(([amount, href]) => (
+                  {TIP_CARDS.map(([amount, href]) => (
                     <button
                       key={amount}
                       type="button"

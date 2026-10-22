@@ -1,9 +1,12 @@
-const KEY = "little-octave.toy";
+import type { Span } from "./theory.ts";
 
-export function loadToy(): number[] | null {
+/** Learned bar pitches, one list per instrument size, in lane order. */
+const keyOf = (span: Span) => (span === 15 ? "little-octave.toy15" : "little-octave.toy");
+
+export function loadToy(span: Span = 8): number[] | null {
   try {
-    const parsed = JSON.parse(localStorage.getItem(KEY) ?? "") as unknown;
-    if (!Array.isArray(parsed) || parsed.length !== 8) return null;
+    const parsed = JSON.parse(localStorage.getItem(keyOf(span)) ?? "") as unknown;
+    if (!Array.isArray(parsed) || parsed.length !== span) return null;
     if (!parsed.every((freq) => typeof freq === "number" && freq > 80 && freq < 4000)) return null;
     return parsed;
   } catch {
@@ -12,9 +15,10 @@ export function loadToy(): number[] | null {
 }
 
 export function saveToy(freqs: readonly number[]): void {
-  localStorage.setItem(KEY, JSON.stringify(freqs));
+  const span: Span = freqs.length === 15 ? 15 : 8;
+  localStorage.setItem(keyOf(span), JSON.stringify(freqs));
 }
 
-export function clearToy(): void {
-  localStorage.removeItem(KEY);
+export function clearToy(span: Span = 8): void {
+  localStorage.removeItem(keyOf(span));
 }

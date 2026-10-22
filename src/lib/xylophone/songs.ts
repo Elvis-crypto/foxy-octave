@@ -1,4 +1,4 @@
-import { foldEvents, parseEvents, ParseError } from "./parse.ts";
+import { bentCount, foldEvents, parseEvents, ParseError } from "./parse.ts";
 import { REPERTOIRE } from "./repertoire.ts";
 import { barsForSpan, laneOf, type Span } from "./theory.ts";
 import { syllabifyLine } from "./syllables.ts";
@@ -45,6 +45,8 @@ export type SongChart = {
   source: "builtin" | "saved";
   endBeat: number;
   lang?: TuneLang;
+  /** Notes with no bar on this toy (no B-flat, no sharps), played on the nearest bar. */
+  bent?: number;
 };
 
 type Part = { lyric: string; abc: string };
@@ -119,7 +121,8 @@ export function compileParts(
     }
   }
   if (notes.length === 0) throw new ParseError("No notes in that. Try C C G G A A G2.");
-  return { id, title, bpm, notes, source, endBeat: cursor, lang };
+  const bent = bentCount(chunks.flatMap((chunk) => chunk.events));
+  return { id, title, bpm, notes, source, endBeat: cursor, lang, ...(bent > 0 ? { bent } : {}) };
 }
 
 export function compilePaste(title: string, abc: string, bpm: number, id: string, span: Span = 8): SongChart {
@@ -205,4 +208,20 @@ export function builtinCharts(span: Span = 8): SongChart[] {
   return REPERTOIRE.map((song) =>
     compileParts(song.id, song.title, song.bpm, songParts(song.id, span), "builtin", span, song.lang, true),
   );
+}
+
+/**
+ * A typed title that is already in the book: exact (ignoring case, accents and
+ * punctuation), or the one song whose title starts with it. Null sends it to search.
+ */
+export function findByTitle<T extends { title: string }>(charts: readonly T[], typed: string): T | null {
+  const norm = (value: string) =>
+    value.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "").replace(/[^a-z0-9]+/g, " ").trim();
+  const want = norm(typed);
+  if (want.length < 2) return null;
+  const exact = charts.find((item) => norm(item.title) === want);
+  if (exact) return exact;
+  if (want.length < 4) return null;
+  const starts = charts.filter((item) => norm(item.title).startsWith(want));
+  return starts.length === 1 ? starts[0]! : null;
 }

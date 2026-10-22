@@ -208,3 +208,14 @@ export function foldEvents(events: Event[], bars: readonly Bar[] = BARS, preferW
     return { midi, beats: event.beats, lane: midi === null ? null : laneOf(midi, bars) };
   });
 }
+
+/**
+ * How many sounding notes have no bar of their own (a B-flat, F-sharp…) even
+ * after the whole tune is moved to the key with the fewest of them. Those notes
+ * are played on the nearest bar, so the sheet tells the reader.
+ */
+export function bentCount(events: readonly Event[]): number {
+  const sounded = events.flatMap((event) => (event.midi === null ? [] : [event.midi]));
+  const shifted = transposeToC(sounded);
+  return shifted.filter((midi) => [1, 3, 6, 8, 10].includes(((midi % 12) + 12) % 12)).length;
+}

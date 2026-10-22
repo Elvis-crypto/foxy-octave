@@ -265,3 +265,24 @@ describe("xylophone library", () => {
     assert.deepEqual(names("da"), ["Bjørnen", "Hoppe", "Højt", "Amazing", "Twinkle", "Aki", "Boci", "Alouette", "Mine"]);
   });
 });
+
+it("a typed title already in the book is found without a search", async () => {
+  const { findByTitle } = await import("./songs.ts");
+  const book = [{ title: "Twinkle, Twinkle, Little Star" }, { title: "Tavaszi szél vizet áraszt" }, { title: "Tavaszi dal" }];
+  assert.equal(findByTitle(book, "twinkle twinkle little star")?.title, book[0]!.title);
+  assert.equal(findByTitle(book, "Twinkle")?.title, book[0]!.title);
+  assert.equal(findByTitle(book, "tavaszi szel")?.title, book[1]!.title);
+  assert.equal(findByTitle(book, "Tavaszi"), null);
+  assert.equal(findByTitle(book, "Cucaracha"), null);
+});
+
+it("notes with no bar are counted after the best key is chosen", async () => {
+  const { bentCount, parseEvents } = await import("./parse.ts");
+  assert.equal(bentCount(parseEvents("F G A _B c")), 0);
+  assert.equal(bentCount(parseEvents("G A B c d e ^f g")), 0);
+  assert.equal(bentCount(parseEvents("C D E ^F G _B")), 2);
+});
+
+it("every recorder song is in the book", () => {
+  assert.equal(RECORDER.length, 45);
+});

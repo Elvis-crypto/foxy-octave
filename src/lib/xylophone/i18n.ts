@@ -78,6 +78,8 @@ export type Copy = {
   account: string;
   accountHint: string;
   accountOff: string;
+  bent: string;
+  bentHint: string;
   continueWith: string;
   keepBubble: string;
   keepClose: string;
@@ -198,6 +200,8 @@ export const copy: Record<Lang, Copy> = {
     account: "Fiók",
     accountHint: "A dalok ezen a telefonon maradnak, amíg be nem jelentkezel.",
     accountOff: "A bejelentkezés most nem érhető el; a dalok ezen a telefonon maradnak.",
+    bent: "{n} hang a legközelebbi lapon (nincs B)",
+    bentHint: "Ezen a xilofonon nincs B (B-flat) és nincs fekete lap; ezek a hangok a legközelebbi lapon szólnak.",
     continueWith: "Folytatás",
     keepBubble: "Ez a dal ezen a telefonon marad. A Beállításokban jelentkezhetsz be, ha máshol is kell.",
     keepClose: "Rendben",
@@ -316,6 +320,8 @@ export const copy: Record<Lang, Copy> = {
     account: "Account",
     accountHint: "Tunes stay on this phone until you sign in.",
     accountOff: "Sign-in is not available right now; tunes stay on this phone.",
+    bent: "{n} notes on the nearest bar (no B♭)",
+    bentHint: "This xylophone has no B-flat or other black bars; those notes play on the nearest bar.",
     continueWith: "Continue with",
     keepBubble: "This tune stays on this phone. Sign in under Options to take it with you.",
     keepClose: "OK",
@@ -434,6 +440,8 @@ export const copy: Record<Lang, Copy> = {
     account: "Compte",
     accountHint: "Les airs restent sur ce téléphone tant que tu n'es pas connecté.",
     accountOff: "La connexion n'est pas disponible ; les airs restent sur ce téléphone.",
+    bent: "{n} notes sur la lame voisine (pas de si♭)",
+    bentHint: "Ce xylophone n'a ni si bémol ni lames noires ; ces notes jouent sur la lame la plus proche.",
     continueWith: "Continuer avec",
     keepBubble: "Cet air reste sur ce téléphone. Connecte-toi dans les réglages pour l'emporter.",
     keepClose: "D'accord",
@@ -552,6 +560,8 @@ export const copy: Record<Lang, Copy> = {
     account: "Konto",
     accountHint: "Die Lieder bleiben auf diesem Telefon, bis du dich anmeldest.",
     accountOff: "Anmelden ist gerade nicht möglich; die Lieder bleiben auf diesem Telefon.",
+    bent: "{n} Töne auf dem Nachbarstab (kein B)",
+    bentHint: "Dieses Xylophon hat kein B und keine schwarzen Stäbe; diese Töne klingen auf dem nächsten Stab.",
     continueWith: "Weiter mit",
     keepBubble: "Dieses Lied bleibt auf diesem Telefon. Melde dich unter Einstellungen an, wenn du es mitnehmen willst.",
     keepClose: "Gut",
@@ -670,6 +680,8 @@ export const copy: Record<Lang, Copy> = {
     account: "Cuenta",
     accountHint: "Las canciones se quedan en este teléfono hasta que entres.",
     accountOff: "No se puede entrar ahora; las canciones se quedan en este teléfono.",
+    bent: "{n} notas en la lámina vecina (sin si♭)",
+    bentHint: "Este xilófono no tiene si bemol ni láminas negras; esas notas suenan en la lámina más cercana.",
     continueWith: "Seguir con",
     keepBubble: "Esta canción se queda en este teléfono. Entra en Ajustes si quieres llevártela.",
     keepClose: "Vale",
@@ -788,6 +800,8 @@ export const copy: Record<Lang, Copy> = {
     account: "Konto",
     accountHint: "Sangene bliver på denne telefon, indtil du logger ind.",
     accountOff: "Login er ikke muligt lige nu; sangene bliver på denne telefon.",
+    bent: "{n} toner på nabotangenten (intet B)",
+    bentHint: "Denne xylofon har intet B og ingen sorte tangenter; de toner spilles på den nærmeste.",
     continueWith: "Fortsæt med",
     keepBubble: "Denne sang bliver på denne telefon. Log ind under Indstillinger, hvis du vil tage den med.",
     keepClose: "OK",
