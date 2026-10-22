@@ -249,6 +249,20 @@ export const RECORDER: readonly RepertoireSong[] = [
     "A szegénylegénynek utat mutassatok!",
     "Mutassatok utat a szegénylegénynek",
     "nem találja házát a szeretőjének."
+   ],
+   [
+    "Istenem",
+    "Istenem, édes jó Istenem",
+    "Mikor lesz énnékem szép szabad életem?",
+    "Akkor lesz énnékem szép szabad életem",
+    "Mikor a babámat kedvemre ölelem."
+   ],
+   [
+    "Liba, liba",
+    "liba, apró pici liba",
+    "Minek is mennék már én el a lagziba?",
+    "Minek is énnékem olyan lakodalom",
+    "Akibe' a babám maga a menyasszony."
    ]
   ]
  },
@@ -379,6 +393,16 @@ export const RECORDER: readonly RepertoireSong[] = [
     "ez aztán az élet",
     "ha megunom magamat",
     "magam is úgy élek."
+   ],
+   [
+    "Hej, két tyúkom tavali, három harmadbéli",
+    "Ha tudtátok, hogy az enyém",
+    "mér adtatok ënnyi?",
+    "Tyutyu",
+    "szölke, tyutyu barna",
+    "tyutyu mind a három",
+    "Az uram is itthon vagyon",
+    "nincsen semmi károm."
    ]
   ]
  },
@@ -433,6 +457,16 @@ export const RECORDER: readonly RepertoireSong[] = [
   ],
   "verses": [
    [
+    "A csitári hegyek alatt régen leesett",
+    "a hó. Azt hallottam",
+    "kisangyalom",
+    "véled esett el a ló. Kitörted a",
+    "kezedet",
+    "mivel ölelsz engemet? Így hát",
+    "kedves kisangyalom",
+    "nem lehetek a tied."
+   ],
+   [
     "Amott látok az ég alatt egy madarat repülni.",
     "De szeretnék",
     "a rózsámnak",
@@ -441,6 +475,16 @@ export const RECORDER: readonly RepertoireSong[] = [
     "vidd el ezt a levelet! Mondd meg",
     "az én galambomnak",
     "ne sirasson engemet."
+   ],
+   [
+    "Arra alá van egy erdő, jaj de nagyon messze",
+    "van, kerek erdő",
+    "közepében",
+    "két rozmaring bokor van. Egyik hajlik",
+    "a vállamra",
+    "másik a babáméra, így hát",
+    "kedves kis angyalom",
+    "tiéd leszek valaha."
    ]
   ]
  },
@@ -842,6 +886,86 @@ export const RECORDER: readonly RepertoireSong[] = [
     "nem kell onnan visszavárni.",
     "Maj' visszajön sülve, főve",
     "nem ül többet az ülőre."
+   ],
+   [
+    "Ha még egyszer leány lennék",
+    "megnézném, hogy kihez mennék",
+    "megválogatnám a legényt",
+    "mint a piacon az edényt."
+   ],
+   [
+    "Az edénynek a mázasát",
+    "a legénynek a pirossát",
+    "avval élnék a kedvemre",
+    "boldog lennék életembe."
+   ]
+  ]
+ },
+ {
+  "id": "ablakomba",
+  "title": "Ablakomba, ablakomba",
+  "lang": "hu",
+  "bpm": 110,
+  "from": "https://dalok.theisz.hu/index.php?lang=hu&page=song&id=Ablakomba",
+  "eightFold": "leap",
+  "tune": [
+   {
+    "source": "D/ F/ E/ D/",
+    "eight": "A/ c/ B/ A/",
+    "fifteen": "A/ c/ B/ A/"
+   },
+   {
+    "source": "A d c A G/ A/ G/ E/ F/ D3/2 D z",
+    "eight": "E A G E D/ E/ D/ B/ c/ A3/2 A z",
+    "fifteen": "e a g e d/ e/ d/ B/ c/ A3/2 A z"
+   },
+   {
+    "source": "D/ F/ E/ D/",
+    "eight": "A/ c/ B/ A/",
+    "fifteen": "A/ c/ B/ A/"
+   },
+   {
+    "source": "A d c/ A3/2",
+    "eight": "E A G/ E3/2",
+    "fifteen": "e a g/ e3/2"
+   },
+   {
+    "source": "G/ A/ G/ E/ F/ D3/2 D z f",
+    "eight": "D/ E/ D/ B/ c/ A3/2 A z c",
+    "fifteen": "d/ e/ d/ B/ c/ A3/2 A z c'"
+   },
+   {
+    "source": "e d/ e3/2 d3/2 c/ A/ c3/2",
+    "eight": "B A/ B3/2 A3/2 G/ E/ G3/2",
+    "fifteen": "b a/ b3/2 a3/2 g/ e/ g3/2"
+   },
+   {
+    "source": "d A G/ ^A3/2 c A F/ D3/2",
+    "eight": "A E D/ F3/2 G E C/ A3/2",
+    "fifteen": "a e d/ f3/2 g e c/ A3/2"
+   },
+   {
+    "source": "D/ F/ E/ D/ A d c/ A3/2 G/ A/ G/ E/",
+    "eight": "A/ c/ B/ A/ E A G/ E3/2 D/ E/ D/ B/",
+    "fifteen": "A/ c/ B/ A/ e a g/ e3/2 d/ e/ d/ B/"
+   },
+   {
+    "source": "F/ D3/2 D z",
+    "eight": "c/ A3/2 A z",
+    "fifteen": "c/ A3/2 A z"
+   }
+  ],
+  "verses": [
+   [
+    "Ablakomba",
+    "ablakomba besütött a holdvilág",
+    "aki kettőt",
+    "hármat szeret",
+    "sosincs arra jó világ. Lám",
+    "én csak egyet szeretek",
+    "mégis de sokat szenvedek",
+    "az az álnok béreslegény csalta meg a",
+    "szívemet."
    ]
   ]
  },
@@ -944,6 +1068,56 @@ export const RECORDER: readonly RepertoireSong[] = [
     "A zöld fű is előtted",
     "édes almát teremjen, A te szíved",
     "soha el ne feledjen!"
+   ]
+  ]
+ },
+ {
+  "id": "osszel-erik-babam",
+  "title": "Ősszel érik, babám",
+  "lang": "hu",
+  "bpm": 104,
+  "from": "https://dalok.theisz.hu/index.php?lang=hu&page=song&id=OsszelErikBabam",
+  "eightFold": "leap",
+  "tune": [
+   {
+    "source": "A3/2 ^A/ A/ G/ F/ C/ F/ G3/2 A/ G3/2 D2 D",
+    "eight": "E3/2 F/ E/ D/ C/ G/ c/ D3/2 E/ D3/2 A2 A",
+    "fifteen": "e3/2 f/ e/ d/ c/ G/ c/ d3/2 e/ d3/2 A2 A"
+   },
+   {
+    "source": "z d/ c3/2 A c ^A/ A3/2 G/ c3/2 A2 A z",
+    "eight": "z A/ G3/2 E G F/ E3/2 D/ G3/2 E2 E z",
+    "fifteen": "z a/ g3/2 e g f/ e3/2 d/ g3/2 e2 e z"
+   },
+   {
+    "source": "d/ c3/2 A",
+    "eight": "A/ G3/2 E",
+    "fifteen": "a/ g3/2 e"
+   },
+   {
+    "source": "c ^A A",
+    "eight": "G F E",
+    "fifteen": "g f e"
+   },
+   {
+    "source": "D/ E/ F/ G/ A2 ^A z A3/2 ^A/ A/ G/ F/ C/",
+    "eight": "A/ B/ c/ D/ E2 F z E3/2 F/ E/ D/ C/ G/",
+    "fifteen": "A/ B/ c/ d/ e2 f z e3/2 f/ e/ d/ c/ G/"
+   },
+   {
+    "source": "F G A/ G3/2 D2 D z",
+    "eight": "c D E/ D3/2 A2 A z",
+    "fifteen": "c d e/ d3/2 A2 A z"
+   }
+  ],
+  "verses": [
+   [
+    "Ősszel érik babám a fekete szőlő",
+    "Te voltál az igazi szerető.",
+    "Bocsáss meg",
+    "ha vala",
+    "valaha vétettem, Ellenedre babám",
+    "rosszat cselekedtem."
    ]
   ]
  },
@@ -1203,6 +1377,68 @@ export const RECORDER: readonly RepertoireSong[] = [
   ]
  },
  {
+  "id": "a-jo-lovas-katonanak",
+  "title": "A jó lovas katonának",
+  "lang": "hu",
+  "bpm": 110,
+  "from": "https://dalok.theisz.hu/index.php?lang=hu&page=song&id=AJoLovasKatonanak",
+  "eightFold": "leap",
+  "tune": [
+   {
+    "source": "D/ D3/2 d/ d3/2 c/ c3/2 c c d/ d3/2 c/ ^A3/2",
+    "eight": "E/ E3/2 E/ E3/2 D/ D3/2 D D E/ E3/2 D/ C3/2",
+    "fifteen": "E/ E3/2 e/ e3/2 d/ d3/2 d d e/ e3/2 d/ c3/2"
+   },
+   {
+    "source": "A2 A z D/ D3/2",
+    "eight": "B2 B z E/ E3/2",
+    "fifteen": "B2 B z E/ E3/2"
+   },
+   {
+    "source": "d/ d3/2 c/ c3/2 c c",
+    "eight": "E/ E3/2 D/ D3/2 D D",
+    "fifteen": "e/ e3/2 d/ d3/2 d d"
+   },
+   {
+    "source": "d3/2 d/ c/ ^A3/2 A2 A z ^A2",
+    "eight": "E3/2 E/ D/ C3/2 B2 B z c2",
+    "fifteen": "e3/2 e/ d/ c3/2 B2 B z c2"
+   },
+   {
+    "source": "A G F/ F3/2 E D",
+    "eight": "B A G/ G3/2 G E",
+    "fifteen": "B A G/ G3/2 G E"
+   },
+   {
+    "source": "G G c ^A A2 d2",
+    "eight": "A A D C B2 E2",
+    "fifteen": "A A d c B2 e2"
+   },
+   {
+    "source": "c/ ^A3/2 A G G/ A3/2 G F",
+    "eight": "D/ C3/2 B A A/ B3/2 A G",
+    "fifteen": "d/ c3/2 B A A/ B3/2 A G"
+   },
+   {
+    "source": "A/ G3/2 ^F ^D D2 D z",
+    "eight": "B/ A3/2 A F E2 E z",
+    "fifteen": "B/ A3/2 A F E2 E z"
+   }
+  ],
+  "verses": [
+   [
+    "A jó lovas katonának de jól vagyon",
+    "dolga, Eszik",
+    "iszik a sátorban",
+    "semmire sincs gondja. Hej",
+    "élet, be gyöngy élet",
+    "ennél szebb sem lehet",
+    "Csak az jöjjön katonának",
+    "aki ilyet szeret!"
+   ]
+  ]
+ },
+ {
   "id": "komaromi-kisleany",
   "title": "Komáromi kisleány",
   "lang": "hu",
@@ -1318,6 +1554,17 @@ export const RECORDER: readonly RepertoireSong[] = [
     "was die Mode streng geteilt",
     "alle Menschen werden Brüder",
     "wo dein sanfter Flügel weilt."
+   ],
+   [
+    "Wem der große Wurf gelungen",
+    "eines Freundes Freund zu sein",
+    "wer ein holdes Weib errungen",
+    "mische seinen",
+    "Jubel ein!",
+    "Ja, wer auch nur eine Seele",
+    "sein nennt auf dem Erdenrund!",
+    "Und wer's nie gekonnt, der stehle",
+    "weinend sich aus diesem Bund."
    ]
   ]
  },

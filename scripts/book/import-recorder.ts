@@ -48,10 +48,13 @@ const WIKI: Record<string, string> = {
 };
 
 /** Not for a kindergarten: adult love, drinking, flirting. Verse numbers are 1-based. */
-const DROP_SONGS = new Set(["ablakomba", "osszel-erik-babam", "a-jo-lovas-katonanak"]);
+// Kept out of the book for children (everything else from the vetted recorder set is in):
+// - hej-dunarol verse 2: "feküdj mellém" (lie down beside me) is a bedroom joke.
+// - megismerni-a-kanaszt verse 2: wanting the swineherd's wife; verse 4: the farmhand "plays" with a young wife.
+const DROP_SONGS = new Set<string>([]);
 const DROP_VERSES: Record<string, number[]> = {
-  "hej-dunarol": [2], csillagok: [2, 3], "megismerni-a-kanaszt": [2, 3, 4], "elesett-a-lud": [3, 4],
-  "ode-to-joy": [2], "csitari-hegyek": [1, 3],
+  "hej-dunarol": [2],
+  "megismerni-a-kanaszt": [2, 4],
 };
 
 const syl = (n: Raw) => (typeof n[2] === "string" ? n[2] : "");
