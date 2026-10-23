@@ -78,6 +78,9 @@ export type Copy = {
   account: string;
   accountHint: string;
   accountOff: string;
+  foxToys: string;
+  foxToysOn: string;
+  foxToysOff: string;
   bent: string;
   bentHint: string;
   continueWith: string;
@@ -200,6 +203,9 @@ export const copy: Record<Lang, Copy> = {
     account: "Fiók",
     accountHint: "A dalok ezen a telefonon maradnak, amíg be nem jelentkezel.",
     accountOff: "A bejelentkezés most nem érhető el; a dalok ezen a telefonon maradnak.",
+    foxToys: "Játékok a rókának",
+    foxToysOn: "Be",
+    foxToysOff: "Ki",
     bent: "{n} hang a legközelebbi lapon (nincs B)",
     bentHint: "Ezen a xilofonon nincs B (B-flat) és nincs fekete lap; ezek a hangok a legközelebbi lapon szólnak.",
     continueWith: "Folytatás",
@@ -320,6 +326,9 @@ export const copy: Record<Lang, Copy> = {
     account: "Account",
     accountHint: "Tunes stay on this phone until you sign in.",
     accountOff: "Sign-in is not available right now; tunes stay on this phone.",
+    foxToys: "Toys for the fox",
+    foxToysOn: "On",
+    foxToysOff: "Off",
     bent: "{n} notes on the nearest bar (no B♭)",
     bentHint: "This xylophone has no B-flat or other black bars; those notes play on the nearest bar.",
     continueWith: "Continue with",
@@ -440,6 +449,9 @@ export const copy: Record<Lang, Copy> = {
     account: "Compte",
     accountHint: "Les airs restent sur ce téléphone tant que tu n'es pas connecté.",
     accountOff: "La connexion n'est pas disponible ; les airs restent sur ce téléphone.",
+    foxToys: "Jouets du renard",
+    foxToysOn: "Oui",
+    foxToysOff: "Non",
     bent: "{n} notes sur la lame voisine (pas de si♭)",
     bentHint: "Ce xylophone n'a ni si bémol ni lames noires ; ces notes jouent sur la lame la plus proche.",
     continueWith: "Continuer avec",
@@ -560,6 +572,9 @@ export const copy: Record<Lang, Copy> = {
     account: "Konto",
     accountHint: "Die Lieder bleiben auf diesem Telefon, bis du dich anmeldest.",
     accountOff: "Anmelden ist gerade nicht möglich; die Lieder bleiben auf diesem Telefon.",
+    foxToys: "Spielsachen für den Fuchs",
+    foxToysOn: "An",
+    foxToysOff: "Aus",
     bent: "{n} Töne auf dem Nachbarstab (kein B)",
     bentHint: "Dieses Xylophon hat kein B und keine schwarzen Stäbe; diese Töne klingen auf dem nächsten Stab.",
     continueWith: "Weiter mit",
@@ -680,6 +695,9 @@ export const copy: Record<Lang, Copy> = {
     account: "Cuenta",
     accountHint: "Las canciones se quedan en este teléfono hasta que entres.",
     accountOff: "No se puede entrar ahora; las canciones se quedan en este teléfono.",
+    foxToys: "Juguetes del zorro",
+    foxToysOn: "Sí",
+    foxToysOff: "No",
     bent: "{n} notas en la lámina vecina (sin si♭)",
     bentHint: "Este xilófono no tiene si bemol ni láminas negras; esas notas suenan en la lámina más cercana.",
     continueWith: "Seguir con",
@@ -800,6 +818,9 @@ export const copy: Record<Lang, Copy> = {
     account: "Konto",
     accountHint: "Sangene bliver på denne telefon, indtil du logger ind.",
     accountOff: "Login er ikke muligt lige nu; sangene bliver på denne telefon.",
+    foxToys: "Legetøj til ræven",
+    foxToysOn: "Til",
+    foxToysOff: "Fra",
     bent: "{n} toner på nabotangenten (intet B)",
     bentHint: "Denne xylofon har intet B og ingen sorte tangenter; de toner spilles på den nærmeste.",
     continueWith: "Fortsæt med",

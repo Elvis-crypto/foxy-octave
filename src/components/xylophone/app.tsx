@@ -179,6 +179,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
   const [muted, setMutedState] = useState(false);
   const [chartOnly, setChartOnly] = useState(false);
   const [syllablesOn, setSyllablesOn] = useState(true);
+  const [foxToys, setFoxToys] = useState(true);
   const [bpm, setBpm] = useState(charts[0]!.bpm);
   const [phase, setPhase] = useState<Phase>("idle");
   const [beat, setBeat] = useState(0);
@@ -302,6 +303,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     setChartOnly(Boolean(disk.chartOnly));
     chartOnlyRef.current = Boolean(disk.chartOnly);
     if (disk.syllables === false) setSyllablesOn(false);
+    if (disk.foxToys === false) setFoxToys(false);
     if (disk.lang) {
       setLang(disk.lang);
       document.cookie = `lo-lang=${disk.lang}; Max-Age=31536000; Path=/; SameSite=Lax`;
@@ -560,7 +562,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     };
   }, [syllableIndex, noteIndex, chart.id, sounding?.line, syllablesOn, followed.parts.length]);
 
-  function persist(next: { saved?: SavedTune[]; lastId?: string; reversed?: boolean; muted?: boolean; chartOnly?: boolean; lang?: Lang; theme?: "light" | "dark" | null; span?: Span; voice?: Chime; keepClosed?: boolean; syllables?: boolean }) {
+  function persist(next: { saved?: SavedTune[]; lastId?: string; reversed?: boolean; muted?: boolean; chartOnly?: boolean; lang?: Lang; theme?: "light" | "dark" | null; span?: Span; voice?: Chime; keepClosed?: boolean; syllables?: boolean; foxToys?: boolean }) {
     const chosen = next.theme === null ? undefined : (next.theme ?? theme ?? undefined);
     return writeDisk({
       saved: next.saved ?? saved,
@@ -574,6 +576,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
       voice: next.voice ?? voice,
       keepClosed: next.keepClosed ?? keepClosed,
       syllables: next.syllables ?? syllablesOn,
+      foxToys: next.foxToys ?? foxToys,
     });
   }
 
@@ -1434,7 +1437,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
             className="h-8 min-w-0 flex-1 accent-coral"
           />
         </label>
-        <FoxScene id={chart.id} title={chart.title} playing={phase === "playing"} paused={phase === "paused"} cue={foxCue} />
+        <FoxScene id={chart.id} title={chart.title} playing={phase === "playing"} paused={phase === "paused"} cue={foxCue} bpm={bpm} toys={foxToys} />
         <div
           className={`grid transition-[grid-template-rows,opacity] duration-[400ms] ease-out motion-reduce:transition-none ${optionsOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
         >
@@ -1482,6 +1485,26 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
                     previewChime(id);
                   }}
                   className={`h-11 rounded-full text-sm font-medium ${voice === id ? "bg-ink text-wall" : "bg-wall text-ink"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 text-sm text-muted">{text.foxToys}</p>
+            <div className="mt-1 grid grid-cols-2 gap-2">
+              {([
+                [true, text.foxToysOn],
+                [false, text.foxToysOff],
+              ] as const).map(([on, label]) => (
+                <button
+                  key={String(on)}
+                  type="button"
+                  aria-pressed={foxToys === on}
+                  onClick={() => {
+                    setFoxToys(on);
+                    persist({ foxToys: on });
+                  }}
+                  className={`h-11 rounded-full text-sm font-medium ${foxToys === on ? "bg-ink text-wall" : "bg-wall text-ink"}`}
                 >
                   {label}
                 </button>

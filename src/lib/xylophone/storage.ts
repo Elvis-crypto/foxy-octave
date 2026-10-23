@@ -36,6 +36,7 @@ export type Disk = {
   keepClosed?: boolean;
   /** False hides the syllable dot. Missing means on. */
   syllables?: boolean;
+  foxToys?: boolean;
 };
 
 export type Chime = "wood" | "bell" | "glass" | "metal";
@@ -94,6 +95,7 @@ export function loadDisk(): Disk {
       voice: CHIMES.includes(parsed.voice as Chime) ? (parsed.voice as Chime) : undefined,
       keepClosed: Boolean(parsed.keepClosed),
       syllables: parsed.syllables === false ? false : undefined,
+      foxToys: parsed.foxToys === false ? false : undefined,
     };
   } catch {
     return { saved: [] };

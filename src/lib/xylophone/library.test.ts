@@ -298,3 +298,20 @@ it("the fox picks behaviors that fit the song and the moment", async () => {
     assert.ok(["sit", "tilt", "sniff", "yawn", "chase", "roll", "walk"].includes(nextBehavior("winter", false, true, r)));
   }
 });
+
+it("fox v3: every scene has 1-3 known toys and the engine steps without throwing", async () => {
+  const eng = await import("../../components/xylophone/fox-engine.ts");
+  for (const [kind, list] of Object.entries(eng.SCENE_OBJECTS)) {
+    assert.ok(list.length >= 1 && list.length <= 3, kind);
+    for (const k of list) assert.ok(eng.OBJECTS.includes(k));
+  }
+  for (const k of eng.OBJECTS) {
+    const e = new eng.FoxEngine();
+    e.resize(360);
+    e.setObjects([k]);
+    e.input = { ...e.input, forceObj: k };
+    e.start("auto");
+    for (let i = 0; i < 1200; i++) e.frame(1 / 60);
+    for (const o of e.objs) assert.ok(Number.isFinite(o.x) && Number.isFinite(o.y), k);
+  }
+});
