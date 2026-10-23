@@ -11,6 +11,7 @@
  * - Objects have their own light physics and react to the fox and to taps.
  */
 import type { FoxSceneKind } from "./fox-kinds";
+import { FoxRig } from "./fox-rig";
 
 export type Behavior =
   | "walk" | "trot" | "sit" | "tilt" | "sniff" | "pounce" | "chase" | "yawn" | "curl"
@@ -105,13 +106,8 @@ function makeObj(kind: ObjKind, x: number): Obj {
 }
 
 export type Els = {
-  root: SVGGElement; whole: SVGGElement; body: SVGGElement; shadow: SVGEllipseElement; stand: SVGGElement; curled: SVGGElement;
-  breathe: SVGGElement; torso: SVGGElement; haunch: SVGGElement; head: SVGGElement; earF: SVGGElement; earB: SVGGElement;
-  eye: SVGGElement; shut: SVGPathElement; mouth: SVGPathElement; tail1: SVGGElement; tail2: SVGGElement; tail3: SVGGElement;
-  legs: { hip: SVGGElement; knee: SVGGElement }[]; bubble: SVGTextElement;
-  side: SVGGElement; front: SVGGElement; fBody: SVGGElement; fHead: SVGGElement; fEarL: SVGGElement; fEarR: SVGGElement;
-  fEyes: SVGGElement; fMouth: SVGEllipseElement; fTail: SVGGElement; fShade: SVGEllipseElement; fHaunch: SVGGElement;
-  fLegs: { g: SVGGElement; shade: SVGElement }[];
+  root: SVGGElement; whole: SVGGElement; shadow: SVGEllipseElement; stand: SVGGElement; curled: SVGGElement; curledFlip: SVGGElement;
+  breathe: SVGGElement; bubble: SVGTextElement;
   objs: Map<Obj, { g: SVGGElement; a?: SVGGElement; b?: SVGGElement; parts: SVGElement[] }>;
 };
 
@@ -153,12 +149,20 @@ export class FoxEngine {
   private tx = 160;
   private vmax = 40;
   private facing = 1;
-  /** Turn spring velocity; head leads and tail lags the body's turn. */
-  private faceV = 0;
-  private headF: Spring = { v: 1, d: 0 };
-  private tailF: Spring = { v: 1, d: 0 };
-  private stepPhase = 0;
+  /** Yaw (radians): +π/2 faces right, 0 the viewer, π away. Head leads; shoulders, hips, tail follow. */
+  private yawGoal = Math.PI / 2;
+  private yawAim = Math.PI / 2;
+  private yawH: Spring = { v: Math.PI / 2, d: 0 };
+  private yawS: Spring = { v: Math.PI / 2, d: 0 };
+  private yawP: Spring = { v: Math.PI / 2, d: 0 };
+  private yawT: Spring = { v: Math.PI / 2, d: 0 };
+  private lastFace = 1;
+  private anticip = 0;
   private turnAct = 0;
+  private spd = 0;
+  private z = 0;
+  private rig: FoxRig | null = null;
+  private rigRoot: SVGGElement | null = null;
   private lookSide = 1;
   private faceTarget = 1;
   private ground = 0;
@@ -466,29 +470,23 @@ export class FoxEngine {
     const arrived = (m.b === "walk" || m.b === "trot") && Math.abs(this.x - this.tx) < 4 && Math.abs(this.vx) < 6;
     if (arrived || (m.b !== "walk" && m.b !== "trot" && m.b !== "visit" && m.t >= m.dur)) this.start("auto");
 
-    // Locomotion: arrive steering with an acceleration limit. Turning first slows the fox.
-    const speed0 = Math.abs(this.vx);
+    // Locomotion: a speed along the way the body faces. Turning while moving bends the path
+    // (through depth) instead of stopping; legs keep stepping.
     const dx = this.tx - this.x;
     const wantDir = Math.abs(dx) > 3 ? Math.sign(dx) : 0;
     if (wantDir !== 0) this.faceTarget = wantDir;
-    const turning = 1 - Math.abs(this.facing);
-    const sameWay = Math.sign(this.facing) === wantDir;
-    let desired = clamp(dx * 2.2, -this.vmax, this.vmax);
-    if (wantDir !== 0 && !sameWay) desired = 0;
-    desired *= 1 - turning;
+    const ahead = wantDir !== 0 && Math.sign(this.facing) === wantDir ? 1 : 0;
+    const dist = Math.abs(dx);
+    let want = wantDir !== 0 ? Math.min(this.vmax, dist * 2.2) : 0;
+    if (!ahead) want = Math.min(want, dist > 22 ? this.spd * 0.8 : 0);
     const accel = 160;
-    const ax = clamp((desired - this.vx) / dt, -accel, accel);
-    this.vx += ax * dt;
+    const prevVx = this.vx;
+    this.spd = Math.max(0, this.spd + clamp((want - this.spd) / dt, -accel, accel) * dt);
+    this.vx = this.spd * Math.sin(this.yawP.v);
+    const ax = (this.vx - prevVx) / dt;
     this.x = clamp(this.x + this.vx * dt, 20, this.width - 20);
-    // Turning: a critically damped spring. Quick pivot when trotting, slower when ambling.
-    const w = speed0 > 60 ? 17 : speed0 > 4 && speed0 < 25 ? 8.5 : 11.5;
-    this.faceV += (w * w * (this.faceTarget - this.facing) - 2 * w * this.faceV) * dt;
-    this.facing = clamp(this.facing + this.faceV * dt, -1, 1);
-    spring(this.headF, this.faceTarget, (w * 1.45) ** 2, 2 * w * 1.45, dt);
-    spring(this.tailF, this.facing, (w * 0.75) ** 2, 2 * w * 0.75 * 0.8, dt);
-    this.headF.v = clamp(this.headF.v, -1, 1);
-    this.turnAct = lerp(this.turnAct, clamp(Math.abs(this.faceV) / 3, 0, 1), 1 - Math.exp(-12 * dt));
-    this.stepPhase += Math.abs(this.faceV) * dt * 7;
+    this.z = clamp(this.z + this.spd * Math.cos(this.yawP.v) * dt * 0.22 - this.z * 1.4 * dt, -5, 5);
+    this.steerYaw(dt);
 
     // Pose: ease every value toward its target.
     const { pose: target, ground } = this.target();
@@ -499,10 +497,11 @@ export class FoxEngine {
     if (this.mode.b !== "roll" && this.pose.spin > 300) this.pose.spin = 0;
     this.ground = lerp(this.ground, ground, 1 - Math.exp(-14 * dt));
 
-    const speed = Math.abs(this.vx);
-    this.gait += dt * (speed / 20) * Math.PI * 2 * (speed > 60 ? 0.85 : 1);
+    const speed = this.spd;
+    const stride = lerp(16, 27, clamp(speed / 95, 0, 1)) * (0.78 + 0.22 * Math.abs(Math.sin(this.yawP.v)));
+    this.gait += (dt * speed / stride) * Math.PI;
     this.wagPhase += dt * this.pose.wagRate;
-    this.gait += Math.abs(this.faceV) * dt * 2.2 * (1 - this.pose.sit);
+    this.gait += Math.abs(this.yawS.d) * dt * 0.9 * (1 - this.pose.sit);
 
     // Springs: tail follows body motion and lags segment by segment; head and ears overlap.
     const ay = this.pose.jump - this.prevAy;
@@ -533,6 +532,52 @@ export class FoxEngine {
   }
 
   private leanNow = 0;
+
+  /** Pick the yaw to aim for (front or back pass), add anticipation, run the chained springs. */
+  private steerYaw(dt: number) {
+    const target = this.faceTarget;
+    const cur = this.yawGoal;
+    if (target !== this.lastFace) {
+      const base = target === 0 ? 0 : (target * Math.PI) / 2;
+      const twoPi = Math.PI * 2;
+      const k = Math.floor((cur - base) / twoPi);
+      const lo = base + k * twoPi, hi = lo + twoPi;
+      let goal: number;
+      if (target === 0) goal = Math.abs(cur - lo) < Math.abs(hi - cur) ? lo : hi;
+      else if (Math.abs(Math.sin(cur) - target) < 0.05) goal = Math.abs(cur - lo) < Math.abs(hi - cur) ? lo : hi;
+      else {
+        const viaFront = (g: number) => Math.cos((cur + g) / 2) > 0;
+        const front = viaFront(lo) ? lo : hi;
+        const back = front === lo ? hi : lo;
+        const looking = this.mode.b === "look" || this.lastFace === 0;
+        goal = !looking && Math.random() < 0.3 ? back : front;
+      }
+      this.anticip = Math.abs(goal - cur) > 0.5 ? 0.09 : 0;
+      this.yawAim = goal;
+      this.yawGoal = goal;
+      this.lastFace = target;
+      this.antiDir = Math.sign(goal - cur);
+    }
+    let aim = this.yawAim;
+    if (this.anticip > 0) { this.anticip -= dt; aim = this.yawS.v - this.antiDir * 0.12; }
+    const sp = this.spd;
+    const w = sp > 60 ? 16 : sp > 4 && sp < 25 ? 8 : 11;
+    const springTo = (s: Spring, goal: number, om: number, zeta: number) => spring(s, goal, om * om, 2 * zeta * om, dt);
+    springTo(this.yawH, aim, w * 1.25, 0.6);
+    springTo(this.yawS, this.yawH.v, w * 2.1, 0.85);
+    springTo(this.yawP, this.yawS.v, w * 1.9, 0.85);
+    springTo(this.yawT, this.yawP.v, w * 1.2, 0.5);
+    this.facing = Math.sin(this.yawS.v);
+    this.turnAct = lerp(this.turnAct, clamp(Math.abs(this.yawS.d) / 6, 0, 1), 1 - Math.exp(-12 * dt));
+    // Keep the numbers small.
+    const wrap = Math.round(this.yawGoal / (Math.PI * 2)) * Math.PI * 2;
+    if (wrap !== 0 && Math.abs(this.yawS.d) < 0.01 && this.anticip <= 0) {
+      for (const s of [this.yawH, this.yawS, this.yawP, this.yawT]) s.v -= wrap;
+      this.yawGoal -= wrap; this.yawAim -= wrap;
+    }
+  }
+
+  private antiDir = 0;
   private sgn = 1;
 
   private interact(obj: Obj, t: number, dt: number) {
@@ -633,65 +678,52 @@ export class FoxEngine {
     const p = this.pose;
     const H = this.height - 2;
     const f = this.facing;
-    // The root mirrors only by the sign; the turn itself is drawn by the side/front rigs below.
-    if (Math.abs(f) > 0.02) this.sgn = f > 0 ? 1 : -1;
-    const fx = this.sgn;
+    if (Math.abs(f) > 0.05) this.sgn = f > 0 ? 1 : -1;
     const turnLift = 1.2 * this.turnAct;
     const lift = p.jump + turnLift + this.ground;
-    const s = FOX_SCALE;
-    e.root.setAttribute("transform", `translate(${this.x.toFixed(2)} ${(H - lift).toFixed(2)}) scale(${(fx * s).toFixed(3)} ${s})`);
-    e.shadow.setAttribute("transform", `translate(${this.x.toFixed(2)} ${(H - this.ground).toFixed(2)}) scale(${(Math.max(0.35, 1 - p.jump / 30) * s).toFixed(3)} ${s})`);
+    const depth = 1 + this.z * 0.02;
+    const s = FOX_SCALE * depth;
+    const sideness = Math.abs(Math.sin(this.yawP.v));
+    e.root.setAttribute("transform", `translate(${this.x.toFixed(2)} ${(H - lift + this.z * 0.4).toFixed(2)}) scale(${s.toFixed(3)})`);
+    e.shadow.setAttribute("transform", `translate(${this.x.toFixed(2)} ${(H - this.ground + this.z * 0.4).toFixed(2)}) scale(${(Math.max(0.35, 1 - p.jump / 30) * s * (0.5 + 0.5 * sideness)).toFixed(3)} ${s.toFixed(3)})`);
     e.shadow.setAttribute("opacity", (0.13 * Math.max(0.35, 1 - p.jump / 30)).toFixed(3));
 
-    const speed = Math.abs(this.vx);
+    const speed = this.spd;
     const amp = clamp(speed / 45, 0, 1) * (1 - p.sit) * (1 - p.curl);
-    const bob = speed > 4 ? Math.abs(Math.sin(this.gait)) * (speed > 60 ? 2.2 : 1.2) * amp : 0;
+    const pivot = (1 - p.sit) * this.turnAct * (1 - clamp(speed / 30, 0, 1));
+    const bob = Math.abs(Math.sin(this.gait)) * (speed > 60 ? 2.2 : 1.2) * Math.max(amp, pivot * 0.6);
     const crouchY = p.crouch * 4;
     const breath = 1 + 0.025 * Math.sin(this.time * 2.1);
+    const dirSign = Math.sin(this.yawS.v);
+    const spinSign = this.sgn;
     e.whole.setAttribute(
       "transform",
-      `translate(0 ${(crouchY - bob).toFixed(2)}) rotate(${(p.spin + p.lean * 0.4).toFixed(2)} 0 -12) scale(${p.sx.toFixed(3)} ${p.sy.toFixed(3)})`,
+      `translate(0 ${(crouchY - bob).toFixed(2)}) rotate(${(p.spin * spinSign + (p.lean * 0.4 + p.lean * 0.6 * 0.5 + this.leanNow) * dirSign).toFixed(2)} 0 -12) scale(${p.sx.toFixed(3)} ${p.sy.toFixed(3)})`,
     );
     e.stand.setAttribute("opacity", (1 - p.curl).toFixed(3));
-    this.renderTurn(e, p);
     e.curled.setAttribute("opacity", p.curl.toFixed(3));
+    e.curledFlip.setAttribute("transform", `scale(${this.sgn} 1)`);
     e.breathe.setAttribute("transform", `translate(48 51) scale(1 ${breath.toFixed(3)}) translate(-48 -51)`);
-    e.body.setAttribute(
-      "transform",
-      `translate(0 ${(7 * p.sit).toFixed(2)}) rotate(${(-26 * p.sit).toFixed(2)} 36 40) rotate(${(p.lean * 0.6 + this.leanNow).toFixed(2)} 46 44)`,
-    );
-    e.torso.setAttribute("transform", `translate(46 44) scale(1 ${breath.toFixed(3)}) translate(-46 -44)`);
-    e.haunch.setAttribute("opacity", ease(p.sit * 1.2).toFixed(3));
 
-    LEGS.forEach((leg, i) => {
-      const el = e.legs[i]!;
+    if (this.rigRoot !== e.stand) { this.rigRoot = e.stand; this.rig = new FoxRig(e.stand); }
+    const legs = LEGS.map((leg, i) => {
       const ph = this.gait + leg.phase + (leg.hind ? 0.5 : 0);
-      let hip = 26 * amp * Math.sin(ph);
-      let knee = (leg.hind ? -1 : 1) * 30 * amp * Math.max(0, Math.sin(ph + Math.PI / 2));
+      const a = Math.max(amp, pivot * 0.5);
+      let hip = 26 * a * Math.sin(ph);
+      let knee = (leg.hind ? -1 : 1) * 30 * a * Math.max(0, Math.sin(ph + Math.PI / 2));
       hip -= p.crouch * (leg.hind ? -18 : 14);
       knee += p.crouch * (leg.hind ? -34 : 26);
-      if (leg.hind) {
-        hip = lerp(hip, -82, p.sit);
-        knee = lerp(knee, 150, p.sit);
-      } else {
-        hip = lerp(hip, 26, p.sit);
-        if (i === 3) { hip -= 58 * p.paw; knee += 70 * p.paw; }
-      }
-      el.hip.setAttribute("transform", `rotate(${hip.toFixed(2)} ${leg.x} 36)`);
-      el.knee.setAttribute("transform", `rotate(${knee.toFixed(2)} ${leg.x} 44)`);
+      if (leg.hind) { hip = lerp(hip, -82, p.sit); knee = lerp(knee, 150, p.sit); }
+      else { hip = lerp(hip, 26, p.sit); if (i === 3) { hip -= 58 * p.paw; knee += 70 * p.paw; } }
+      return { hip, knee };
     });
-
-    const headRot = this.headS.v + 20 * p.sit * 0.55;
-    e.head.setAttribute("transform", `rotate(${headRot.toFixed(2)} 60 30)`);
-    e.earF.setAttribute("transform", `rotate(${this.earS[0]!.v.toFixed(2)} 68 18)`);
-    e.earB.setAttribute("transform", `rotate(${this.earS[1]!.v.toFixed(2)} 63 19)`);
     const shut = Math.max(p.shut, this.blinkT > 0 ? 1 : 0);
-    e.eye.setAttribute("transform", `translate(73 23.4) scale(1 ${(1 - 0.9 * shut).toFixed(3)}) translate(-73 -23.4)`);
-    e.shut.setAttribute("opacity", (shut > 0.6 ? 1 : 0).toString());
-    e.mouth.setAttribute("transform", `translate(80 29.4) scale(${(0.3 + p.mouth).toFixed(3)} ${(0.2 + 2.4 * p.mouth).toFixed(3)}) translate(-80 -29.4)`);
-    e.tail1.setAttribute("transform", `rotate(${this.tailS[0]!.v.toFixed(2)} 32 31)`);
-    e.tail2.setAttribute("transform", `rotate(${this.tailS[1]!.v.toFixed(2)} 22 31.5)`);
-    e.tail3.setAttribute("transform", `rotate(${this.tailS[2]!.v.toFixed(2)} 13 31)`);
+    this.rig!.draw({
+      yawHead: this.yawH.v, yawSh: this.yawS.v, yawHip: this.yawP.v, yawTail: this.yawT.v,
+      sit: p.sit, headPitch: this.headS.v, earF: this.earS[0]!.v, earB: this.earS[1]!.v, mouth: p.mouth, shut,
+      tail: [this.tailS[0]!.v, this.tailS[1]!.v, this.tailS[2]!.v],
+      tailSide: (this.yawP.v - this.yawT.v) * 0.8 + Math.sin(this.wagPhase) * p.wag * 0.35, legs, breath,
+    });
     e.bubble.setAttribute("opacity", Math.min(1, this.bubbleT * 2).toFixed(2));
     e.bubble.setAttribute("transform", `translate(${(this.x + this.facing * 18).toFixed(1)} ${(H - 34 - lift - (1.4 - this.bubbleT) * 6).toFixed(1)})`);
     if (this.bubbleText && e.bubble.textContent !== this.bubbleText) e.bubble.textContent = this.bubbleText;
@@ -739,64 +771,13 @@ export class FoxEngine {
     });
   }
 
-  /** Side ↔ three-quarter ↔ front: cross-fade and parallax driven by the continuous turn value. */
-  private renderTurn(e: Els, p: Pose) {
-    if (!e.side || !e.front) return;
-    const sg = this.sgn;
-    const F = this.facing;
-    const a = Math.abs(F);
-    const smooth = (lo: number, hi: number, v: number) => ease((v - lo) / (hi - lo));
-    const sideOp = Math.max(smooth(0.3, 0.56, a), p.curl);
-    const frontOp = (1 - smooth(0.3, 0.6, a)) * (1 - p.curl);
-    // Side rig narrows as it turns toward the viewer.
-    e.side.setAttribute("opacity", sideOp.toFixed(3));
-    e.side.setAttribute("transform", `scale(${lerp(0.42, 1, ease(a)).toFixed(3)} 1)`);
-    e.front.setAttribute("opacity", frontOp.toFixed(3));
-    if (frontOp < 0.002) return;
-    // Everything below is computed in world terms (W) and turned into the mirrored local frame with sg.
-    const W = (v: number) => (v * sg).toFixed(2);
-    const width = lerp(1, 0.62, a);
-    e.front.setAttribute("transform", `translate(${W(F * 5)} 0) scale(${width.toFixed(3)} 1)`);
-    const sitDrop = 3 * p.sit;
-    e.fBody.setAttribute("transform", `translate(0 ${sitDrop.toFixed(2)})`);
-    e.fShade.setAttribute("transform", `translate(${W(-F * 7)} 0)`);
-    e.fShade.setAttribute("opacity", (a * 0.45).toFixed(3));
-    e.fHaunch.setAttribute("opacity", p.sit.toFixed(3));
-    // Head leads the body; it nods with the head spring.
-    const hF = this.headF.v;
-    const nod = clamp(this.headS.v * 0.12, -4, 5);
-    e.fHead.setAttribute("transform", `translate(${W(hF * 8 / width)} ${(sitDrop * 0.6 + nod).toFixed(2)}) rotate(${W(hF * 6)} 0 -30)`);
-    // Ears: the far one slides in behind the head and narrows.
-    const farL = Math.max(0, hF * sg), farR = Math.max(0, -hF * sg);
-    e.fEarL.setAttribute("transform", `translate(${(farL * 4).toFixed(2)} 0) rotate(${(-8 + this.earS[0]!.v * 0.4 + farL * 10).toFixed(2)} -6 -37) scale(${(1 - farL * 0.55).toFixed(3)} 1)`);
-    e.fEarR.setAttribute("transform", `translate(${(-farR * 4).toFixed(2)} 0) rotate(${(8 - this.earS[1]!.v * 0.4 - farR * 10).toFixed(2)} 6 -37) scale(${(1 - farR * 0.55).toFixed(3)} 1)`);
-    const shut = Math.max(p.shut, this.blinkT > 0 ? 1 : 0);
-    e.fEyes.setAttribute("transform", `translate(0 -32) scale(1 ${(1 - 0.9 * shut).toFixed(3)}) translate(0 32)`);
-    e.fMouth.setAttribute("transform", `translate(0 -24.6) scale(${(0.4 + p.mouth).toFixed(3)} ${(0.1 + p.mouth * 1.6).toFixed(3)}) translate(0 24.6)`);
-    // Tail lags and sweeps across behind the body.
-    const tF = this.tailF.v;
-    e.fTail.setAttribute("transform", `translate(${W(-tF * 13)} 0) rotate(${W(-tF * 28 + Math.sin(this.wagPhase) * p.wag * 12)} 0 -12)`);
-    // Legs: near side spreads outward, far side tucks in and darkens; feet step in place while pivoting.
-    const base = [-5.6, 5.6, -3.4, 3.4];
-    e.fLegs.forEach((leg, i) => {
-      const x0 = base[i]!;
-      const worldSide = Math.sign(x0) * sg;
-      const near = worldSide * F;
-      const front = i >= 2;
-      const x = x0 * (1 + 0.28 * near) + sg * F * (front ? 2.4 : -2.4);
-      const lift = 2.2 * this.turnAct * Math.max(0, Math.sin(this.stepPhase + (i % 2) * Math.PI + (front ? Math.PI / 2 : 0)));
-      const hide = front ? 0 : p.sit * 0.9;
-      leg.g.setAttribute("transform", `translate(${x.toFixed(2)} ${(-lift + (front ? 0 : sitDrop)).toFixed(2)})`);
-      leg.g.setAttribute("opacity", (1 - hide).toFixed(3));
-      leg.shade.setAttribute("opacity", clamp(-near * 0.55, 0, 0.55).toFixed(3));
-    });
-  }
-
   /** One still frame (reduced motion): sitting, or curled up at night. */
   still() {
     this.mode = { b: this.input.kind === "night" ? "curl" : "sit", t: 0, dur: 9999 };
-    this.facing = this.faceTarget = this.headF.v = this.tailF.v = Math.sign(this.facing || 1);
-    this.faceV = 0;
+    const side = Math.sign(this.facing || 1);
+    this.facing = this.faceTarget = this.lastFace = side;
+    this.yawGoal = this.yawAim = (side * Math.PI) / 2;
+    for (const sp of [this.yawH, this.yawS, this.yawP, this.yawT]) { sp.v = this.yawGoal; sp.d = 0; }
     this.tx = this.x;
     const { pose } = this.target();
     this.pose = { ...pose };
