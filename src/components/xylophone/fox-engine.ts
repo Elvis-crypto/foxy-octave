@@ -14,10 +14,10 @@ import type { FoxSceneKind } from "./fox-kinds";
 
 export type Behavior =
   | "walk" | "trot" | "sit" | "tilt" | "sniff" | "pounce" | "chase" | "yawn" | "curl"
-  | "roll" | "catch" | "wag" | "hop" | "confused" | "dance";
+  | "roll" | "catch" | "wag" | "hop" | "confused" | "dance" | "turn" | "look";
 
 export const BEHAVIORS: readonly Behavior[] = [
-  "walk", "trot", "sit", "tilt", "sniff", "pounce", "chase", "yawn", "curl", "roll", "catch", "wag", "hop", "confused", "dance",
+  "walk", "trot", "sit", "tilt", "sniff", "pounce", "chase", "yawn", "curl", "roll", "catch", "wag", "hop", "confused", "dance", "turn", "look",
 ];
 
 export type ObjKind =
@@ -42,18 +42,18 @@ export const SCENE_OBJECTS: Record<FoxSceneKind, readonly ObjKind[]> = {
 
 const LENGTH: Record<Behavior, number> = {
   walk: 0, trot: 0, sit: 4.2, tilt: 3.6, sniff: 3.2, pounce: 2.4, chase: 2.6, yawn: 2.6, curl: 7,
-  roll: 1.8, catch: 1.6, wag: 1.4, hop: 1.6, confused: 1.8, dance: 4.8,
+  roll: 1.8, catch: 1.6, wag: 1.4, hop: 1.6, confused: 1.8, dance: 4.8, turn: 6.4, look: 2.6,
 };
 
 const MOODS: Record<FoxSceneKind, { playing: Behavior[]; resting: Behavior[] }> = {
-  walk: { playing: ["trot", "trot", "tilt", "wag"], resting: ["walk", "sniff", "sit", "tilt"] },
+  walk: { playing: ["trot", "trot", "tilt", "wag"], resting: ["walk", "sniff", "sit", "tilt", "look"] },
   winter: { playing: ["trot", "pounce", "trot"], resting: ["walk", "pounce", "sniff", "sit"] },
   autumn: { playing: ["trot", "catch", "trot"], resting: ["catch", "walk", "sniff", "roll"] },
-  spring: { playing: ["trot", "trot", "chase"], resting: ["walk", "walk", "sniff", "roll"] },
+  spring: { playing: ["trot", "trot", "chase"], resting: ["walk", "walk", "sniff", "roll", "look"] },
   night: { playing: ["tilt", "sit", "yawn"], resting: ["curl", "yawn", "tilt"] },
   dance: { playing: ["dance", "hop", "dance", "chase"], resting: ["dance", "sit", "chase"] },
   rain: { playing: ["trot", "sit"], resting: ["walk", "sit", "sniff"] },
-  pond: { playing: ["tilt", "trot", "sit"], resting: ["sit", "tilt", "sniff", "walk"] },
+  pond: { playing: ["tilt", "trot", "sit"], resting: ["sit", "tilt", "sniff", "walk", "look"] },
 };
 
 const IDLE: Behavior[] = ["sit", "tilt", "sniff", "yawn", "chase", "roll", "walk"];
@@ -109,6 +109,9 @@ export type Els = {
   breathe: SVGGElement; torso: SVGGElement; haunch: SVGGElement; head: SVGGElement; earF: SVGGElement; earB: SVGGElement;
   eye: SVGGElement; shut: SVGPathElement; mouth: SVGPathElement; tail1: SVGGElement; tail2: SVGGElement; tail3: SVGGElement;
   legs: { hip: SVGGElement; knee: SVGGElement }[]; bubble: SVGTextElement;
+  side: SVGGElement; front: SVGGElement; fBody: SVGGElement; fHead: SVGGElement; fEarL: SVGGElement; fEarR: SVGGElement;
+  fEyes: SVGGElement; fMouth: SVGEllipseElement; fTail: SVGGElement; fShade: SVGEllipseElement; fHaunch: SVGGElement;
+  fLegs: { g: SVGGElement; shade: SVGElement }[];
   objs: Map<Obj, { g: SVGGElement; a?: SVGGElement; b?: SVGGElement; parts: SVGElement[] }>;
 };
 
@@ -150,6 +153,13 @@ export class FoxEngine {
   private tx = 160;
   private vmax = 40;
   private facing = 1;
+  /** Turn spring velocity; head leads and tail lags the body's turn. */
+  private faceV = 0;
+  private headF: Spring = { v: 1, d: 0 };
+  private tailF: Spring = { v: 1, d: 0 };
+  private stepPhase = 0;
+  private turnAct = 0;
+  private lookSide = 1;
   private faceTarget = 1;
   private ground = 0;
   private prevAy = 0;
@@ -278,8 +288,11 @@ export class FoxEngine {
   }
 
   /* ---------- simulation ---------- */
+  /** Preview slow-motion (?slow=4 → quarter speed). */
+  timeScale = 1;
+
   frame(dt: number) {
-    this.acc = Math.min(this.acc + dt, 0.1);
+    this.acc = Math.min(this.acc + dt * this.timeScale, 0.1);
     const step = 1 / 60;
     while (this.acc >= step) {
       this.step(step);
@@ -307,6 +320,8 @@ export class FoxEngine {
     if (b === "wag") { p.sit = 0.7; p.wag = 1; p.wagRate = 19; p.head = -8; p.tail = 10; }
     if (b === "hop") this.hopPose(p, u);
     if (b === "confused") { p.sit = 0.85; p.head = -24 * env(u, 0.15, 0.2); p.earF = -18 * env(u, 0.15, 0.2); p.tail = -20; }
+    if (b === "look") { p.sit = 0.8; p.tail = -18; p.wag = 0.35; p.wagRate = 7; }
+    if (b === "turn") { p.tail = 8; }
     if (b === "dance") {
       const beat = 60 / clamp(this.input.bpm, 50, 180);
       const ph = (t / beat) * Math.PI;
@@ -433,6 +448,16 @@ export class FoxEngine {
       this.vmax = 110; if (m.t > 0.7 && m.t < 0.75) this.tx = clamp(this.x + this.facing * 24, 26, this.width - 26);
     } else if (m.b === "chase") {
       this.faceTarget = Math.sin(m.t * 5) >= 0 ? 1 : -1; this.tx = this.x;
+    } else if (m.b === "turn") {
+      this.tx = this.x;
+      if (m.t < dt * 1.5) this.lookSide = Math.sign(this.facing || 1);
+      const k = Math.floor(m.t / 1.6);
+      this.faceTarget = k % 2 === 0 ? -this.lookSide : this.lookSide;
+      if (m.t > m.dur - 0.05) this.faceTarget = this.lookSide;
+    } else if (m.b === "look") {
+      this.tx = this.x;
+      if (m.t < dt * 1.5) this.lookSide = Math.sign(this.facing || 1);
+      this.faceTarget = m.t > 0.2 && m.t < m.dur - 0.6 ? 0 : this.lookSide;
     } else if (m.b === "dance") {
       const beat = 60 / clamp(this.input.bpm, 50, 180);
       this.faceTarget = Math.floor(m.t / (beat * 4)) % 2 === 0 ? 1 : -1;
@@ -442,6 +467,7 @@ export class FoxEngine {
     if (arrived || (m.b !== "walk" && m.b !== "trot" && m.b !== "visit" && m.t >= m.dur)) this.start("auto");
 
     // Locomotion: arrive steering with an acceleration limit. Turning first slows the fox.
+    const speed0 = Math.abs(this.vx);
     const dx = this.tx - this.x;
     const wantDir = Math.abs(dx) > 3 ? Math.sign(dx) : 0;
     if (wantDir !== 0) this.faceTarget = wantDir;
@@ -454,7 +480,15 @@ export class FoxEngine {
     const ax = clamp((desired - this.vx) / dt, -accel, accel);
     this.vx += ax * dt;
     this.x = clamp(this.x + this.vx * dt, 20, this.width - 20);
-    this.facing += clamp(this.faceTarget - this.facing, -dt * 4.5, dt * 4.5);
+    // Turning: a critically damped spring. Quick pivot when trotting, slower when ambling.
+    const w = speed0 > 60 ? 17 : speed0 > 4 && speed0 < 25 ? 8.5 : 11.5;
+    this.faceV += (w * w * (this.faceTarget - this.facing) - 2 * w * this.faceV) * dt;
+    this.facing = clamp(this.facing + this.faceV * dt, -1, 1);
+    spring(this.headF, this.faceTarget, (w * 1.45) ** 2, 2 * w * 1.45, dt);
+    spring(this.tailF, this.facing, (w * 0.75) ** 2, 2 * w * 0.75 * 0.8, dt);
+    this.headF.v = clamp(this.headF.v, -1, 1);
+    this.turnAct = lerp(this.turnAct, clamp(Math.abs(this.faceV) / 3, 0, 1), 1 - Math.exp(-12 * dt));
+    this.stepPhase += Math.abs(this.faceV) * dt * 7;
 
     // Pose: ease every value toward its target.
     const { pose: target, ground } = this.target();
@@ -468,6 +502,7 @@ export class FoxEngine {
     const speed = Math.abs(this.vx);
     this.gait += dt * (speed / 20) * Math.PI * 2 * (speed > 60 ? 0.85 : 1);
     this.wagPhase += dt * this.pose.wagRate;
+    this.gait += Math.abs(this.faceV) * dt * 2.2 * (1 - this.pose.sit);
 
     // Springs: tail follows body motion and lags segment by segment; head and ears overlap.
     const ay = this.pose.jump - this.prevAy;
@@ -498,6 +533,7 @@ export class FoxEngine {
   }
 
   private leanNow = 0;
+  private sgn = 1;
 
   private interact(obj: Obj, t: number, dt: number) {
     const k = obj.kind;
@@ -597,8 +633,10 @@ export class FoxEngine {
     const p = this.pose;
     const H = this.height - 2;
     const f = this.facing;
-    const fx = Math.sign(f || 1) * Math.max(0.16, Math.abs(f));
-    const turnLift = 3 * (1 - Math.abs(f));
+    // The root mirrors only by the sign; the turn itself is drawn by the side/front rigs below.
+    if (Math.abs(f) > 0.02) this.sgn = f > 0 ? 1 : -1;
+    const fx = this.sgn;
+    const turnLift = 1.2 * this.turnAct;
     const lift = p.jump + turnLift + this.ground;
     const s = FOX_SCALE;
     e.root.setAttribute("transform", `translate(${this.x.toFixed(2)} ${(H - lift).toFixed(2)}) scale(${(fx * s).toFixed(3)} ${s})`);
@@ -615,6 +653,7 @@ export class FoxEngine {
       `translate(0 ${(crouchY - bob).toFixed(2)}) rotate(${(p.spin + p.lean * 0.4).toFixed(2)} 0 -12) scale(${p.sx.toFixed(3)} ${p.sy.toFixed(3)})`,
     );
     e.stand.setAttribute("opacity", (1 - p.curl).toFixed(3));
+    this.renderTurn(e, p);
     e.curled.setAttribute("opacity", p.curl.toFixed(3));
     e.breathe.setAttribute("transform", `translate(48 51) scale(1 ${breath.toFixed(3)}) translate(-48 -51)`);
     e.body.setAttribute(
@@ -700,9 +739,64 @@ export class FoxEngine {
     });
   }
 
+  /** Side ↔ three-quarter ↔ front: cross-fade and parallax driven by the continuous turn value. */
+  private renderTurn(e: Els, p: Pose) {
+    if (!e.side || !e.front) return;
+    const sg = this.sgn;
+    const F = this.facing;
+    const a = Math.abs(F);
+    const smooth = (lo: number, hi: number, v: number) => ease((v - lo) / (hi - lo));
+    const sideOp = Math.max(smooth(0.3, 0.56, a), p.curl);
+    const frontOp = (1 - smooth(0.3, 0.6, a)) * (1 - p.curl);
+    // Side rig narrows as it turns toward the viewer.
+    e.side.setAttribute("opacity", sideOp.toFixed(3));
+    e.side.setAttribute("transform", `scale(${lerp(0.42, 1, ease(a)).toFixed(3)} 1)`);
+    e.front.setAttribute("opacity", frontOp.toFixed(3));
+    if (frontOp < 0.002) return;
+    // Everything below is computed in world terms (W) and turned into the mirrored local frame with sg.
+    const W = (v: number) => (v * sg).toFixed(2);
+    const width = lerp(1, 0.62, a);
+    e.front.setAttribute("transform", `translate(${W(F * 5)} 0) scale(${width.toFixed(3)} 1)`);
+    const sitDrop = 3 * p.sit;
+    e.fBody.setAttribute("transform", `translate(0 ${sitDrop.toFixed(2)})`);
+    e.fShade.setAttribute("transform", `translate(${W(-F * 7)} 0)`);
+    e.fShade.setAttribute("opacity", (a * 0.45).toFixed(3));
+    e.fHaunch.setAttribute("opacity", p.sit.toFixed(3));
+    // Head leads the body; it nods with the head spring.
+    const hF = this.headF.v;
+    const nod = clamp(this.headS.v * 0.12, -4, 5);
+    e.fHead.setAttribute("transform", `translate(${W(hF * 8 / width)} ${(sitDrop * 0.6 + nod).toFixed(2)}) rotate(${W(hF * 6)} 0 -30)`);
+    // Ears: the far one slides in behind the head and narrows.
+    const farL = Math.max(0, hF * sg), farR = Math.max(0, -hF * sg);
+    e.fEarL.setAttribute("transform", `translate(${(farL * 4).toFixed(2)} 0) rotate(${(-8 + this.earS[0]!.v * 0.4 + farL * 10).toFixed(2)} -6 -37) scale(${(1 - farL * 0.55).toFixed(3)} 1)`);
+    e.fEarR.setAttribute("transform", `translate(${(-farR * 4).toFixed(2)} 0) rotate(${(8 - this.earS[1]!.v * 0.4 - farR * 10).toFixed(2)} 6 -37) scale(${(1 - farR * 0.55).toFixed(3)} 1)`);
+    const shut = Math.max(p.shut, this.blinkT > 0 ? 1 : 0);
+    e.fEyes.setAttribute("transform", `translate(0 -32) scale(1 ${(1 - 0.9 * shut).toFixed(3)}) translate(0 32)`);
+    e.fMouth.setAttribute("transform", `translate(0 -24.6) scale(${(0.4 + p.mouth).toFixed(3)} ${(0.1 + p.mouth * 1.6).toFixed(3)}) translate(0 24.6)`);
+    // Tail lags and sweeps across behind the body.
+    const tF = this.tailF.v;
+    e.fTail.setAttribute("transform", `translate(${W(-tF * 13)} 0) rotate(${W(-tF * 28 + Math.sin(this.wagPhase) * p.wag * 12)} 0 -12)`);
+    // Legs: near side spreads outward, far side tucks in and darkens; feet step in place while pivoting.
+    const base = [-5.6, 5.6, -3.4, 3.4];
+    e.fLegs.forEach((leg, i) => {
+      const x0 = base[i]!;
+      const worldSide = Math.sign(x0) * sg;
+      const near = worldSide * F;
+      const front = i >= 2;
+      const x = x0 * (1 + 0.28 * near) + sg * F * (front ? 2.4 : -2.4);
+      const lift = 2.2 * this.turnAct * Math.max(0, Math.sin(this.stepPhase + (i % 2) * Math.PI + (front ? Math.PI / 2 : 0)));
+      const hide = front ? 0 : p.sit * 0.9;
+      leg.g.setAttribute("transform", `translate(${x.toFixed(2)} ${(-lift + (front ? 0 : sitDrop)).toFixed(2)})`);
+      leg.g.setAttribute("opacity", (1 - hide).toFixed(3));
+      leg.shade.setAttribute("opacity", clamp(-near * 0.55, 0, 0.55).toFixed(3));
+    });
+  }
+
   /** One still frame (reduced motion): sitting, or curled up at night. */
   still() {
     this.mode = { b: this.input.kind === "night" ? "curl" : "sit", t: 0, dur: 9999 };
+    this.facing = this.faceTarget = this.headF.v = this.tailF.v = Math.sign(this.facing || 1);
+    this.faceV = 0;
     this.tx = this.x;
     const { pose } = this.target();
     this.pose = { ...pose };

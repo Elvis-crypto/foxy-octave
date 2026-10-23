@@ -254,7 +254,14 @@ export function FoxScene({
   const kind = sceneFor(id, title);
   const [force] = useState(() => param<Behavior>("fox", BEHAVIORS));
   const [forceObj] = useState(() => param<ObjKind>("obj", OBJECTS));
-  const engine = useMemo(() => new FoxEngine(), []);
+  const engine = useMemo(() => {
+    const made = new FoxEngine();
+    if (typeof window !== "undefined") {
+      const slow = Number(new URLSearchParams(window.location.search).get("slow"));
+      if (slow >= 1 && slow <= 20) made.timeScale = 1 / slow;
+    }
+    return made;
+  }, []);
   const boxRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(360);
   const [objs, setObjs] = useState<Obj[]>([]);
@@ -344,6 +351,11 @@ export function FoxScene({
   const bindLeg = (i: number) => (hip: SVGGElement | null, knee: SVGGElement | null) => {
     if (hip && knee) els.current.legs[i] = { hip, knee };
   };
+  const bindFrontLeg = (i: number, el: SVGGElement | null) => {
+    if (!el) return;
+    const list = ((els.current as Partial<Els>).fLegs ??= []);
+    list[i] = { g: el, shade: el.querySelector("[data-shade]") as SVGElement };
+  };
   const bindObj = (obj: Obj) => (key: "g" | "a" | "b" | number, el: SVGElement | null) => {
     if (!el) return;
     const map = els.current.objs;
@@ -399,6 +411,7 @@ export function FoxScene({
           }}
         >
           <g ref={set("whole")}>
+            <g ref={set("side")}>
             <g transform="translate(-46 -52)">
               <g ref={set("stand")}>
                 <g ref={set("body")}>
@@ -459,6 +472,56 @@ export function FoxScene({
                   <path d="M57 44 Q58.8 45.2 60.6 44" stroke={SOCK} strokeWidth={0.9} fill="none" strokeLinecap="round" />
                   <circle cx={67.4} cy={46.2} r={1.3} fill={SOCK} />
                 </g>
+              </g>
+            </g>
+            </g>
+            <g ref={set("front")} opacity={0}>
+              <g ref={set("fTail")}>
+                <path d="M0 -12 C-6 -14 -12 -20 -11 -27 C-10 -31 -6 -31 -4 -28 C-2 -23 0 -17 0 -12 Z" fill={ORANGE} />
+                <path d="M-11 -27 C-10.6 -31 -6.4 -31.4 -4.6 -28.6 C-6.6 -29 -9 -28.4 -11 -27 Z" fill={CREAM} />
+              </g>
+              {[0, 1].map((i) => (
+                <g key={i} ref={(el) => bindFrontLeg(i, el)}>
+                  <path d="M-2.2 -11 L-2 -1 Q0 0.6 2 -1 L2.2 -11 Z" fill={DEEP} />
+                  <path d="M-2.1 -4 L-2 -1 Q0 0.6 2 -1 L2.1 -4 Z" fill={SOCK} />
+                  <path data-shade d="M-2.2 -11 L-2 -1 Q0 0.6 2 -1 L2.2 -11 Z" fill={SOCK} opacity={0} />
+                </g>
+              ))}
+              <g ref={set("fBody")}>
+                <ellipse cx={0} cy={-15} rx={9.5} ry={10} fill={ORANGE} />
+                <path d="M-5.6 -22 C-6.4 -14 -4 -8 0 -6.4 C4 -8 6.4 -14 5.6 -22 C3 -19.4 -3 -19.4 -5.6 -22 Z" fill={CREAM} />
+                <g ref={set("fHaunch")} opacity={0}>
+                  <ellipse cx={-8} cy={-6} rx={4.4} ry={5} fill={DEEP} />
+                  <ellipse cx={8} cy={-6} rx={4.4} ry={5} fill={DEEP} />
+                </g>
+                <ellipse ref={set("fShade")} cx={0} cy={-15} rx={5} ry={9} fill={DEEP} opacity={0} />
+              </g>
+              {[2, 3].map((i) => (
+                <g key={i} ref={(el) => bindFrontLeg(i, el)}>
+                  <path d="M-2.1 -14 L-1.9 -1 Q0 0.8 1.9 -1 L2.1 -14 Z" fill={ORANGE} />
+                  <path d="M-2 -5 L-1.9 -1 Q0 0.8 1.9 -1 L2 -5 Z" fill={SOCK} />
+                  <path data-shade d="M-2.1 -14 L-1.9 -1 Q0 0.8 1.9 -1 L2.1 -14 Z" fill={SOCK} opacity={0} />
+                </g>
+              ))}
+              <g ref={set("fHead")}>
+                <g ref={set("fEarL")}>
+                  <path d="M-9.4 -36 L-7.6 -46.6 L-2.6 -38.4 Z" fill={ORANGE} />
+                  <path d="M-8.2 -37.4 L-7.4 -43.6 L-4.6 -38.8 Z" fill={SOCK} opacity={0.8} />
+                </g>
+                <g ref={set("fEarR")}>
+                  <path d="M9.4 -36 L7.6 -46.6 L2.6 -38.4 Z" fill={ORANGE} />
+                  <path d="M8.2 -37.4 L7.4 -43.6 L4.6 -38.8 Z" fill={SOCK} opacity={0.8} />
+                </g>
+                <path d="M-10.5 -33 C-10.5 -38.6 -5.6 -40 0 -40 C5.6 -40 10.5 -38.6 10.5 -33 C10.5 -29 6 -26 3 -23.4 C1.6 -22.2 -1.6 -22.2 -3 -23.4 C-6 -26 -10.5 -29 -10.5 -33 Z" fill={ORANGE} />
+                <path d="M-10.4 -31.6 C-7 -30.4 -4 -29 -2.8 -26.4 C-2 -24 -1 -23 0 -23 C1 -23 2 -24 2.8 -26.4 C4 -29 7 -30.4 10.4 -31.6 C9 -28 5.6 -25.4 3 -23.4 C1.6 -22.2 -1.6 -22.2 -3 -23.4 C-5.6 -25.4 -9 -28 -10.4 -31.6 Z" fill={CREAM} />
+                <g ref={set("fEyes")}>
+                  <ellipse cx={-4.2} cy={-32} rx={1.25} ry={1.6} fill={SOCK} />
+                  <ellipse cx={4.2} cy={-32} rx={1.25} ry={1.6} fill={SOCK} />
+                  <circle cx={-3.8} cy={-32.6} r={0.4} fill="#fff" />
+                  <circle cx={4.6} cy={-32.6} r={0.4} fill="#fff" />
+                </g>
+                <ellipse cx={0} cy={-26.2} rx={1.7} ry={1.3} fill={SOCK} />
+                <ellipse ref={set("fMouth")} cx={0} cy={-24.6} rx={1.6} ry={1.2} fill="#7a2f22" />
               </g>
             </g>
           </g>
