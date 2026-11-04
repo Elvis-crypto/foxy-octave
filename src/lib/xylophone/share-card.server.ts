@@ -1,9 +1,27 @@
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { Resvg } from "@resvg/resvg-js";
 import { FOX_PNG, FRAUNCES_600, OUTFIT_600 } from "./share-assets.gen";
 import { SHARE_COPY } from "./share.ts";
 import type { Lang } from "./i18n.ts";
 
-const FONTS = [Buffer.from(OUTFIT_600, "base64"), Buffer.from(FRAUNCES_600, "base64")];
+/** resvg-js 2.6 only loads fonts from files, so the baked fonts go to the temp dir once. */
+let fontFiles: string[] | null = null;
+function fonts(): string[] {
+  if (fontFiles) return fontFiles;
+  const dir = join(tmpdir(), "foxy-share-fonts");
+  mkdirSync(dir, { recursive: true });
+  fontFiles = [
+    ["outfit600.ttf", OUTFIT_600],
+    ["fraunces600.ttf", FRAUNCES_600],
+  ].map(([name, data]) => {
+    const file = join(dir, name!);
+    if (!existsSync(file)) writeFileSync(file, Buffer.from(data!, "base64"));
+    return file;
+  });
+  return fontFiles;
+}
 const BARS = ["#e4dfa8", "#e6c85a", "#e07a28", "#e14b42", "#c9a39c", "#c5c9a8", "#6fb56a", "#8b97a3"];
 
 function esc(s: string): string {
@@ -74,8 +92,7 @@ ${stars}
 export function renderShareCard(input: { title: string; stars: number | null; lang: Lang }): Buffer {
   const resvg = new Resvg(shareCardSvg(input), {
     fitTo: { mode: "width", value: 1200 },
-    // fontBuffers is supported at runtime (resvg-js 2.5+) but missing from its types.
-    font: { fontBuffers: FONTS, loadSystemFonts: false, defaultFontFamily: "Outfit" } as never,
+    font: { fontFiles: fonts(), loadSystemFonts: false, defaultFontFamily: "Outfit" },
   });
   return resvg.render().asPng();
 }
