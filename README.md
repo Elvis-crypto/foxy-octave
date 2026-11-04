@@ -29,3 +29,22 @@ select lower(title) as title, count(*) from song_requests group by 1 order by 2 
 ```
 
 Rate limit: 5 per caller per 30 min, 200 per hour overall (`SONG_REQUEST_LIMIT`).
+
+## Visitor stats
+
+Cookieless, first-party (migration 0009, `site_events`). Each page load posts one
+`view` (with `?ref=` / `?from=` tag, referrer host, landing `?song=`); share clicks
+post a `share` with the channel. Unique visitors are a SHA-256 of
+(`STATS_SALT`, day, address, browser) that changes daily — no cookies, no IPs stored.
+
+Private page: `/stats?token=<STATS_TOKEN>` (404 without it). Today / 7 days / all time
+per source, a 30-day chart, referrers, landing songs, share clicks.
+
+```sql
+select day, src, count(distinct visitor) filter (where kind='view') visitors,
+  count(*) filter (where kind='view' and session_start) sessions,
+  count(*) filter (where kind='view') views, count(*) filter (where kind='share') shares
+from site_events group by 1,2 order by 1 desc, 3 desc;
+```
+
+Vercel Web Analytics (`/_vercel/insights/script.js`, cookieless) runs as a cross-check.
