@@ -67,3 +67,40 @@ export const countPartnerVisit = createServerFn({ method: "POST" })
     `;
     return { ok: true as const };
   });
+
+export type SongRequestInput = { title?: unknown; note?: unknown; contact?: unknown; lang?: unknown };
+
+const tidy = (v: unknown, max: number) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : "");
+
+export function cleanSongRequest(input: SongRequestInput) {
+  const title = tidy(input?.title, 120);
+  if (title.length < 2) throw new Error("bad request");
+  return {
+    title,
+    note: tidy(input.note, 500) || null,
+    contact: tidy(input.contact, 120) || null,
+    lang: isLang(input.lang) ? input.lang : null,
+  };
+}
+
+/** A song wish. Stored only; never listed in the app (child-safe: no public display). */
+export const saveSongRequest = createServerFn({ method: "POST" })
+  .validator((input: SongRequestInput) => cleanSongRequest(input))
+  .handler(async ({ data }) => {
+    const { randomUUID } = await import("node:crypto");
+    const { clientKey, overLimit, RateLimited, SONG_REQUEST_LIMIT } = await import("./limit.server");
+    const key = clientKey();
+    const sql = await getSql();
+    const [counts] = await sql<{ mine: number; everyone: number }>`
+      select
+        count(*) filter (where client_key = ${key} and created_at > now() - make_interval(mins => ${SONG_REQUEST_LIMIT.clientMinutes}))::int as mine,
+        count(*)::int as everyone
+      from song_requests where created_at > now() - interval '1 hour'
+    `;
+    if (overLimit(SONG_REQUEST_LIMIT, counts?.mine ?? 0, counts?.everyone ?? 0)) throw new RateLimited();
+    await sql`
+      insert into song_requests (id, title, note, contact, ui_lang, client_key)
+      values (${randomUUID()}, ${data.title}, ${data.note}, ${data.contact}, ${data.lang}, ${key})
+    `;
+    return { ok: true as const };
+  });

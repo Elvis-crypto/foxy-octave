@@ -24,6 +24,7 @@ export type Limit = { perClient: number; clientMinutes: number; perHour: number 
 
 export const REPORT_LIMIT: Limit = { perClient: 5, clientMinutes: 10, perHour: 300 };
 export const CAPTURE_LIMIT: Limit = { perClient: 20, clientMinutes: 10, perHour: 1000 };
+export const SONG_REQUEST_LIMIT: Limit = { perClient: 5, clientMinutes: 30, perHour: 200 };
 
 export class RateLimited extends Error {
   constructor() {

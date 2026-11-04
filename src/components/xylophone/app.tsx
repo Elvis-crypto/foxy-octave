@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeftRight, Bug, Eye, Heart, Moon, Pause, Pencil, Play, Plus, Settings, Square, Sun, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeftRight, Bug, Music, Share2, Eye, Heart, Moon, Pause, Pencil, Play, Plus, Settings, Square, Sun, Volume2, VolumeX } from "lucide-react";
 import {
   cancelUpcoming,
   peekAudio,
@@ -30,7 +30,8 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { copy, isLang, localizeError, UI_LANGS, type Lang } from "@/lib/xylophone/i18n";
 import { REPERTOIRE } from "@/lib/xylophone/repertoire";
 import { followSyllables } from "@/lib/xylophone/syllables";
-import { countPartnerVisit, saveReport } from "@/lib/xylophone/reports";
+import { countPartnerVisit, saveReport, saveSongRequest } from "@/lib/xylophone/reports";
+import { SHARE_COPY, playedLine, shareQuery, starsFor } from "@/lib/xylophone/share";
 import { barsForSpan, type Bar, type Span } from "@/lib/xylophone/theory";
 
 const KEYS = ["A", "S", "D", "F", "G", "H", "J", "K"];
@@ -49,6 +50,12 @@ const TIP_CARDS: readonly (readonly [string, string])[] = [
   ["4 000 Ft", "https://buy.stripe.com/eVqfZh9Migs8104bpF1sQ01"],
 ];
 const TIP_JAR = TIP_CARDS.length > 0 || TIP_WALLETS.length > 0;
+/**
+ * Partner links (`?from=<tag>`) used to hide the fox-treat (donation) box.
+ * SUSPENDED on István's request (Nov 2026): donations show on every link.
+ * To restore the old behaviour, set this back to true.
+ */
+const HIDE_TIPS_ON_FROM = false;
 
 function compileStored(tune: SavedTune, span: Span): SongChart {
   const lines = span === 15 && tune.wide?.length ? tune.wide : tune.lines;
@@ -213,6 +220,14 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
   const [reportBusy, setReportBusy] = useState(false);
   const [fromTag, setFromTag] = useState("");
   const [reportHint, setReportHint] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareNote, setShareNote] = useState("");
+  const [requestOpen, setRequestOpen] = useState(false);
+  const [requestTitle, setRequestTitle] = useState("");
+  const [requestText, setRequestText] = useState("");
+  const [requestContact, setRequestContact] = useState("");
+  const [requestBusy, setRequestBusy] = useState(false);
+  const [requestMsg, setRequestMsg] = useState("");
   const [foxCue, setFoxCue] = useState<FoxCue>(null);
   const touchTapRef = useRef(false);
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
@@ -293,7 +308,14 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     const merged = mergeCharts(built, compiled);
     setSaved(kept);
     setCharts(merged);
-    const nextId = disk.lastId && merged.some((item) => item.id === disk.lastId) ? disk.lastId : built[0]!.id;
+    // A shared link (`?song=<id>`) opens on that song.
+    const linked = new URLSearchParams(window.location.search).get("song");
+    const nextId =
+      linked && merged.some((item) => item.id === linked)
+        ? linked
+        : disk.lastId && merged.some((item) => item.id === disk.lastId)
+          ? disk.lastId
+          : built[0]!.id;
     const next = merged.find((item) => item.id === nextId) ?? built[0]!;
     setSongId(next.id);
     setBpm(next.bpm);
@@ -977,6 +999,53 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     setAdding(true);
   }
 
+  function shareLink(stars: 1 | 2 | 3 | null): string {
+    // Saved (own) tunes have no server card; share the app with the song title only.
+    const builtin = REPERTOIRE.some((song) => song.id === chart.id);
+    return `${window.location.origin}/${builtin ? shareQuery({ song: chart.id, stars, lang }) : "?from=share"}`;
+  }
+
+  async function share(stars: 1 | 2 | 3 | null) {
+    const url = shareLink(stars);
+    const title = playedLine(lang, chart.title);
+    setShareNote("");
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title, text: `${title} 🦊`, url });
+        return;
+      } catch (error) {
+        if ((error as Error)?.name === "AbortError") return;
+      }
+    }
+    setShareOpen(true);
+  }
+
+  async function copyShare() {
+    try {
+      await navigator.clipboard.writeText(shareLink(tally ? starsFor(tally) : null));
+      setShareNote(SHARE_COPY[lang].copied);
+    } catch {
+      setShareNote(shareLink(tally ? starsFor(tally) : null));
+    }
+  }
+
+  async function sendSongRequest() {
+    if (requestTitle.trim().length < 2 || requestBusy) return;
+    setRequestBusy(true);
+    setRequestMsg("");
+    try {
+      await saveSongRequest({ data: { title: requestTitle, note: requestText, contact: requestContact, lang } });
+      setRequestTitle("");
+      setRequestText("");
+      setRequestContact("");
+      setRequestMsg(SHARE_COPY[lang].requestSent);
+    } catch {
+      setRequestMsg(SHARE_COPY[lang].requestFail);
+    } finally {
+      setRequestBusy(false);
+    }
+  }
+
   async function sendReport() {
     const body = reportBody.trim();
     if (body.length < 3 || reportBusy) return;
@@ -1059,6 +1128,15 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            aria-label={SHARE_COPY[lang].share}
+            title={SHARE_COPY[lang].share}
+            onClick={() => void share(null)}
+            className="flex size-9 items-center justify-center rounded-full bg-track text-ink"
+          >
+            <Share2 className="size-4" aria-hidden />
+          </button>
           <div className="group relative">
             <button
               type="button"
@@ -1340,7 +1418,20 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
                 <li className="flex justify-between gap-4"><span>{text.nextDoor}</span><span className="tabular-nums">{tally.next}</span></li>
                 <li className="flex justify-between gap-4"><span>{text.missed}</span><span className="tabular-nums">{tally.missed}</span></li>
               </ul>
-              <div className="mt-3 flex gap-2">
+              <div className="mt-2 flex gap-1" aria-label={SHARE_COPY[lang].stars.replace("{n}", String(starsFor(tally)))}>
+                {[1, 2, 3].map((n) => (
+                  <span key={n} className={`text-2xl leading-none ${n <= starsFor(tally) ? "text-bar-b" : "text-track"}`} aria-hidden>★</span>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => void share(starsFor(tally))}
+                className="mt-3 flex h-11 items-center justify-center gap-2 rounded-full bg-coral px-4 text-sm font-medium text-ink"
+              >
+                <Share2 className="size-4" aria-hidden />
+                {SHARE_COPY[lang].share}
+              </button>
+              <div className="mt-2 flex gap-2">
                 <button type="button" onClick={() => void yourTurn()} className="h-10 rounded-full bg-ink px-4 text-sm font-medium text-wall">
                   {text.again}
                 </button>
@@ -1538,7 +1629,18 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
                 </SignInGate>
               )}
             </div>
-            {fromTag || !TIP_JAR ? null : (
+            <button
+              type="button"
+              onClick={() => {
+                setRequestOpen(true);
+                setRequestMsg("");
+              }}
+              className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-wall text-sm font-medium"
+            >
+              <Music className="size-4" aria-hidden />
+              {SHARE_COPY[lang].request}
+            </button>
+            {(HIDE_TIPS_ON_FROM && fromTag) || !TIP_JAR ? null : (
               <button
                 type="button"
                 aria-expanded={supportOpen}
@@ -1560,7 +1662,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
                 </span>
               </button>
             )}
-            {supportOpen && !fromTag && TIP_JAR ? (
+            {supportOpen && !(HIDE_TIPS_ON_FROM && fromTag) && TIP_JAR ? (
               <div className="mt-2">
                 <div className="grid grid-cols-3 gap-2">
                   {TIP_CARDS.map(([amount, href]) => (
@@ -1707,6 +1809,102 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
         </div>
         <p className="hidden text-center text-xs text-muted sm:block">{span === 15 ? text.keysWide : text.keys}</p>
       </div>
+      {shareOpen ? (
+        <div
+          className="fixed inset-0 z-40 flex items-end justify-center bg-ink/40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:items-center"
+          onClick={() => setShareOpen(false)}
+        >
+          <div className="w-full max-w-md rounded-2xl bg-wall p-3 shadow-lg" onClick={(event) => event.stopPropagation()}>
+            <p className="text-sm font-medium">{SHARE_COPY[lang].shareTitle}</p>
+            <p className="mt-1 text-xs text-muted">{playedLine(lang, chart.title)}</p>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              <button type="button" onClick={() => void copyShare()} className="h-11 rounded-full bg-ink text-sm font-medium text-wall">
+                {SHARE_COPY[lang].copy}
+              </button>
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`${playedLine(lang, chart.title)} 🦊 ${shareLink(tally ? starsFor(tally) : null)}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-11 items-center justify-center rounded-full bg-track text-sm font-medium"
+              >
+                WhatsApp
+              </a>
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareLink(tally ? starsFor(tally) : null))}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-11 items-center justify-center rounded-full bg-track text-sm font-medium"
+              >
+                Facebook
+              </a>
+            </div>
+            {shareNote ? (
+              <p className="mt-2 text-sm break-all text-ink" role="status">{shareNote}</p>
+            ) : null}
+            <button type="button" onClick={() => setShareOpen(false)} className="mt-2 h-11 w-full rounded-full bg-track text-sm font-medium">
+              {text.back}
+            </button>
+          </div>
+        </div>
+      ) : null}
+      {requestOpen ? (
+        <div
+          className="fixed inset-0 z-40 flex items-end justify-center bg-ink/40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:items-center"
+          onClick={() => setRequestOpen(false)}
+        >
+          <form
+            className="w-full max-w-md rounded-2xl bg-wall p-3 shadow-lg"
+            onClick={(event) => event.stopPropagation()}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void sendSongRequest();
+            }}
+          >
+            <p className="text-sm font-medium">{SHARE_COPY[lang].requestTitle}</p>
+            <input
+              value={requestTitle}
+              autoFocus
+              maxLength={120}
+              placeholder={SHARE_COPY[lang].requestSong}
+              aria-label={SHARE_COPY[lang].requestSong}
+              onChange={(event) => { setRequestTitle(event.target.value); setRequestMsg(""); }}
+              className="mt-2 h-11 w-full rounded-2xl bg-track px-3 text-base text-ink outline-none placeholder:text-muted"
+            />
+            <textarea
+              value={requestText}
+              maxLength={500}
+              placeholder={SHARE_COPY[lang].requestNote}
+              aria-label={SHARE_COPY[lang].requestNote}
+              onChange={(event) => setRequestText(event.target.value)}
+              className="mt-2 h-20 w-full resize-none rounded-2xl bg-track px-3 py-2 text-base text-ink outline-none placeholder:text-muted"
+            />
+            <input
+              value={requestContact}
+              maxLength={120}
+              type="email"
+              placeholder={SHARE_COPY[lang].requestContact}
+              aria-label={SHARE_COPY[lang].requestContact}
+              onChange={(event) => setRequestContact(event.target.value)}
+              className="mt-2 h-11 w-full rounded-2xl bg-track px-3 text-base text-ink outline-none placeholder:text-muted"
+            />
+            {requestMsg ? (
+              <p className="mt-2 text-sm text-pretty text-ink" role="status">{requestMsg}</p>
+            ) : null}
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => setRequestOpen(false)} className="h-11 rounded-full bg-track text-sm font-medium">
+                {text.back}
+              </button>
+              <button
+                type="submit"
+                disabled={requestBusy || requestTitle.trim().length < 2}
+                className="h-11 rounded-full bg-ink text-sm font-medium text-wall disabled:opacity-50"
+              >
+                {SHARE_COPY[lang].requestSend}
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
       {reportOpen ? (
         <div
           className="fixed inset-0 z-40 flex items-end justify-center bg-ink/40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:items-center"

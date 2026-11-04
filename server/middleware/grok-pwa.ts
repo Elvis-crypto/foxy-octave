@@ -24,6 +24,7 @@ import {
   renderInstallPageHtml,
   renderWebManifest,
 } from "../../scripts/grok-pwa-shared.mjs";
+import { shareMetaTags, withShareMeta } from "../share-meta";
 
 interface GrokPwaEvent {
   url: URL;
@@ -105,7 +106,8 @@ export default async function grokPwaMiddleware(
     String(result.headers.get("content-type") ?? "").includes("text/html") &&
     !result.headers.get("content-encoding")
   ) {
-    return injectHeadStreaming(result, requestHost(event));
+    const host = requestHost(event);
+    return withShareMeta(injectHeadStreaming(result, host), shareMetaTags(event.url, host));
   }
   return result;
 }
