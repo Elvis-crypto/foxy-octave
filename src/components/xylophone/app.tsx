@@ -31,6 +31,7 @@ import { copy, isLang, localizeError, UI_LANGS, type Lang } from "@/lib/xylophon
 import { REPERTOIRE } from "@/lib/xylophone/repertoire";
 import { followSyllables } from "@/lib/xylophone/syllables";
 import { countPartnerVisit, saveReport, saveSongRequest } from "@/lib/xylophone/reports";
+import { trackEvent } from "@/lib/xylophone/stats";
 import { SHARE_COPY, playedLine, shareQuery, starsFor } from "@/lib/xylophone/share";
 import { barsForSpan, type Bar, type Span } from "@/lib/xylophone/theory";
 
@@ -459,6 +460,25 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     const timer = window.setTimeout(() => setCallout(null), 700);
     return () => window.clearTimeout(timer);
   }, [callout]);
+
+  useEffect(() => {
+    // Cookieless page view; a session starts when the visitor arrives from outside the site.
+    const q = new URLSearchParams(window.location.search);
+    let sessionStart = true;
+    try {
+      sessionStart = !document.referrer || new URL(document.referrer).host !== window.location.host;
+    } catch {
+      /* keep true */
+    }
+    void trackEvent({
+      data: { kind: "view", ref: q.get("ref") ?? undefined, from: q.get("from") ?? undefined, referrer: sessionStart ? document.referrer : undefined, song: q.get("song") ?? undefined, sessionStart },
+    }).catch(() => {});
+  }, []);
+
+  function trackShare(channel: "native" | "copy" | "whatsapp" | "facebook") {
+    const q = new URLSearchParams(window.location.search);
+    void trackEvent({ data: { kind: "share", channel, song: chart.id, ref: q.get("ref") ?? undefined, from: q.get("from") ?? undefined } }).catch(() => {});
+  }
 
   useEffect(() => {
     const from = new URLSearchParams(window.location.search).get("from") ?? "";
@@ -1012,6 +1032,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     if (typeof navigator.share === "function") {
       try {
         await navigator.share({ title, text: `${title} 🦊`, url });
+        trackShare("native");
         return;
       } catch (error) {
         if ((error as Error)?.name === "AbortError") return;
@@ -1022,6 +1043,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
 
   async function copyShare() {
     try {
+      trackShare("copy");
       await navigator.clipboard.writeText(shareLink(tally ? starsFor(tally) : null));
       setShareNote(SHARE_COPY[lang].copied);
     } catch {
@@ -1825,6 +1847,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
                 href={`https://wa.me/?text=${encodeURIComponent(`${playedLine(lang, chart.title)} 🦊 ${shareLink(tally ? starsFor(tally) : null)}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackShare("whatsapp")}
                 className="flex h-11 items-center justify-center rounded-full bg-track text-sm font-medium"
               >
                 WhatsApp
@@ -1833,6 +1856,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
                 href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareLink(tally ? starsFor(tally) : null))}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackShare("facebook")}
                 className="flex h-11 items-center justify-center rounded-full bg-track text-sm font-medium"
               >
                 Facebook

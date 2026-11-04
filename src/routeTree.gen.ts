@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as StatsRouteImport } from './routes/stats'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiOgShareRouteImport } from './routes/api/og/share'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatsRoute = StatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -38,12 +44,14 @@ const ApiOgShareRoute = ApiOgShareRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/stats': typeof StatsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/og/share': typeof ApiOgShareRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/stats': typeof StatsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/og/share': typeof ApiOgShareRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/stats': typeof StatsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/og/share': typeof ApiOgShareRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/api/auth/$' | '/api/og/share'
+  fullPaths: '/' | '/login' | '/stats' | '/api/auth/$' | '/api/og/share'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/api/auth/$' | '/api/og/share'
-  id: '__root__' | '/' | '/login' | '/api/auth/$' | '/api/og/share'
+  to: '/' | '/login' | '/stats' | '/api/auth/$' | '/api/og/share'
+  id: '__root__' | '/' | '/login' | '/stats' | '/api/auth/$' | '/api/og/share'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  StatsRoute: typeof StatsRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiOgShareRoute: typeof ApiOgShareRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stats': {
+      id: '/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  StatsRoute: StatsRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiOgShareRoute: ApiOgShareRoute,
 }

@@ -36,6 +36,8 @@ export const Route = createRootRoute({
           }}
         />
         <HeadContent />
+        {/* Vercel Web Analytics (cookieless, first-party) as a cross-check of our own counts. */}
+        <script defer src="/_vercel/insights/script.js" />
       </head>
       <body>
         <PreviewHostBridge />
