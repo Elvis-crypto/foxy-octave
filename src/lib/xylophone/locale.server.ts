@@ -39,6 +39,12 @@ export async function resolveRequestLang(): Promise<Lang> {
   if (!request) return "en";
   const headers = request.headers;
   const cookie = headers.get("cookie");
+  let queryLang: string | null = null;
+  try {
+    queryLang = new URL(request.url).searchParams.get("lang");
+  } catch {
+    queryLang = null;
+  }
   const headerCountry =
     headers.get("cf-ipcountry") ||
     headers.get("x-vercel-ip-country") ||
@@ -53,5 +59,5 @@ export async function resolveRequestLang(): Promise<Lang> {
       publicIp(headers.get("true-client-ip"));
     if (ip) country = await countryOf(ip);
   }
-  return langFromSignals({ cookie, country, accept: headers.get("accept-language") });
+  return langFromSignals({ query: queryLang, cookie, country, accept: headers.get("accept-language") });
 }

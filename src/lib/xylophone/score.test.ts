@@ -55,7 +55,7 @@ describe("pitch and score", () => {
     assert.equal(shouldCall("next", { verdict: "early", atMs: 0 }, 1200), true);
   });
 
-  it("serves the language of the country, then the browser, and keeps a saved choice", () => {
+  it("serves ?lang=, then a saved choice, then the country, then the browser", () => {
     assert.equal(langFromSignals({ cookie: null, country: "HU", accept: "en" }), "hu");
     assert.equal(langFromSignals({ cookie: null, country: "DE", accept: "hu-HU,hu;q=0.9" }), "de");
     assert.equal(langFromSignals({ cookie: null, country: "AT", accept: "en" }), "de");
@@ -70,5 +70,7 @@ describe("pitch and score", () => {
     assert.equal(langFromSignals({ cookie: "lo-lang=en", country: "HU", accept: "hu" }), "en");
     assert.equal(langFromSignals({ cookie: "a=1; lo-lang=hu", country: "US", accept: "en" }), "hu");
     assert.equal(langFromSignals({ cookie: "lo-lang=da", country: "HU", accept: "hu" }), "da");
+    assert.equal(langFromSignals({ query: "hu", cookie: "lo-lang=en", country: "US", accept: "en" }), "hu");
+    assert.equal(langFromSignals({ query: "de", cookie: null, country: "HU", accept: "en" }), "de");
   });
 });

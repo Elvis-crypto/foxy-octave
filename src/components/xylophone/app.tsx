@@ -327,9 +327,14 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     chartOnlyRef.current = Boolean(disk.chartOnly);
     if (disk.syllables === false) setSyllablesOn(false);
     if (disk.foxToys === false) setFoxToys(false);
-    if (disk.lang) {
-      setLang(disk.lang);
-      document.cookie = `lo-lang=${disk.lang}; Max-Age=31536000; Path=/; SameSite=Lax`;
+    const linkedLang = new URLSearchParams(window.location.search).get("lang");
+    const startLang = isLang(linkedLang) ? linkedLang : disk.lang;
+    if (startLang) {
+      setLang(startLang);
+      document.cookie = `lo-lang=${startLang}; Max-Age=31536000; Path=/; SameSite=Lax`;
+      if (isLang(linkedLang) && disk.lang !== linkedLang) {
+        writeDisk({ ...disk, saved: kept, lang: linkedLang });
+      }
     }
     if (disk.theme) setTheme(disk.theme);
     if (size === 15) setSpan(15);

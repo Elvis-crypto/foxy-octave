@@ -10,8 +10,14 @@ const COUNTRY: Partial<Record<string, Lang>> = {
   DK: "da",
 };
 
-/** Saved choice, then the viewer's country, then the browser language. */
-export function langFromSignals(input: { cookie: string | null; country: string | null; accept: string | null }): Lang {
+/** URL ?lang=, then saved choice, then country, then the browser language. */
+export function langFromSignals(input: {
+  query?: string | null;
+  cookie: string | null;
+  country: string | null;
+  accept: string | null;
+}): Lang {
+  if (input.query && isLang(input.query)) return input.query;
   const saved = input.cookie?.match(/(?:^|;\s*)lo-lang=(hu|en|fr|de|es|da)(?:\s*;|$)/);
   if (saved?.[1] && isLang(saved[1])) return saved[1];
   if (input.country && /^[A-Za-z]{2}$/.test(input.country)) {
