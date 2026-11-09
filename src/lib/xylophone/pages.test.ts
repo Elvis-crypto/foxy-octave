@@ -71,6 +71,7 @@ describe("christmas pages", () => {
     assert.ok(paths.includes("/"));
     assert.ok(paths.includes("/advent"));
     assert.ok(paths.includes("/tanar"));
+    assert.ok(paths.includes("/plakat"));
     for (const id of CHRISTMAS_IDS) assert.ok(paths.includes(`/dal/${id}`));
     const xml = sitemapXml("https://foxy.example");
     for (const path of paths) assert.ok(xml.includes(`<loc>https://foxy.example${path}</loc>`));

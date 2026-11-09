@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StatsRouteImport } from './routes/stats'
 import { Route as TanarRouteImport } from './routes/tanar'
+import { Route as PlakatRouteImport } from './routes/plakat'
 import { Route as DalSlugRouteImport } from './routes/dal/$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiOgShareRouteImport } from './routes/api/og/share'
@@ -49,6 +50,11 @@ const TanarRoute = TanarRouteImport.update({
   path: '/tanar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlakatRoute = PlakatRouteImport.update({
+  id: '/plakat',
+  path: '/plakat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DalSlugRoute = DalSlugRouteImport.update({
   id: '/dal/$slug',
   path: '/dal/$slug',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stats': typeof StatsRoute
   '/tanar': typeof TanarRoute
+  '/plakat': typeof PlakatRoute
   '/dal/$slug': typeof DalSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/og/share': typeof ApiOgShareRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stats': typeof StatsRoute
   '/tanar': typeof TanarRoute
+  '/plakat': typeof PlakatRoute
   '/dal/$slug': typeof DalSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/og/share': typeof ApiOgShareRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stats': typeof StatsRoute
   '/tanar': typeof TanarRoute
+  '/plakat': typeof PlakatRoute
   '/dal/$slug': typeof DalSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/og/share': typeof ApiOgShareRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/stats'
     | '/tanar'
+    | '/plakat'
     | '/dal/$slug'
     | '/api/auth/$'
     | '/api/og/share'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/stats'
     | '/tanar'
+    | '/plakat'
     | '/dal/$slug'
     | '/api/auth/$'
     | '/api/og/share'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/stats'
     | '/tanar'
+    | '/plakat'
     | '/dal/$slug'
     | '/api/auth/$'
     | '/api/og/share'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StatsRoute: typeof StatsRoute
   TanarRoute: typeof TanarRoute
+  PlakatRoute: typeof PlakatRoute
   DalSlugRoute: typeof DalSlugRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiOgShareRoute: typeof ApiOgShareRoute
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TanarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/plakat': {
+      id: '/plakat'
+      path: '/plakat'
+      fullPath: '/plakat'
+      preLoaderRoute: typeof PlakatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dal/$slug': {
       id: '/dal/$slug'
       path: '/dal/$slug'
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StatsRoute: StatsRoute,
   TanarRoute: TanarRoute,
+  PlakatRoute: PlakatRoute,
   DalSlugRoute: DalSlugRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiOgShareRoute: ApiOgShareRoute,

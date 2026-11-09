@@ -7,31 +7,8 @@ import { DEFAULT_PAPER_TAG, partnerTag } from "@/lib/xylophone/partner";
 import { REPERTOIRE, type RepertoireSong } from "@/lib/xylophone/repertoire";
 import { builtinCharts, compareSongs } from "@/lib/xylophone/songs";
 import { rememberPlayed } from "@/lib/xylophone/storage";
-import { QrCode } from "./qr-code";
+import { ClassroomPoster, type PosterLang } from "./classroom-poster";
 import { usePageLang, usePageSearch } from "./use-page-lang";
-
-type PosterLang = "hu" | "de" | "en";
-
-const POSTER: Record<PosterLang, { brand: string; line: string; scan: string; tag: string }> = {
-  hu: {
-    brand: "Rókás oktáv",
-    line: "Énekeljünk a xilofonnal.",
-    scan: "Olvasd be a kódot.",
-    tag: "Jel",
-  },
-  de: {
-    brand: "Fuchsoktave",
-    line: "Wir singen mit dem Xylophon.",
-    scan: "Lies den Code.",
-    tag: "Kennung",
-  },
-  en: {
-    brand: "Foxy Octave",
-    line: "Sing with the xylophone.",
-    scan: "Scan the code.",
-    tag: "Tag",
-  },
-};
 
 const ROOM: Record<Lang, { title: string; songs: string; print: string; poster: string; stop: string; home: string }> = {
   hu: { title: "Tanterem", songs: "Dalok", print: "Nyomtatás", poster: "Plakát", stop: "Állj", home: "Xilofon" },
@@ -93,8 +70,6 @@ export function TeacherPage({ suggested, search }: { suggested: Lang; search: st
   }, []);
 
   const song = songs.find((item) => item.id === songId) ?? songs[0];
-  const poster = POSTER[posterLang];
-  const qr = origin ? `${origin}/?from=${effective}&lang=${posterLang}` : "";
   const tuneLen = song?.tune.length ?? 1;
   const shownVerse = playing && activeLine >= 0 ? Math.floor(activeLine / tuneLen) : verse;
   const lineInVerse = activeLine >= 0 ? activeLine % tuneLen : -1;
@@ -215,56 +190,16 @@ export function TeacherPage({ suggested, search }: { suggested: Lang; search: st
         </section>
       </div>
 
-      <section id="poszter" className="no-print mx-auto max-w-6xl px-4 pb-10 scroll-mt-4">
-        <h2 className="font-display text-3xl font-medium">{text.poster}</h2>
-        <div className="mt-3 flex flex-wrap items-end gap-3">
-          <label className="text-sm">
-            <span className="block text-muted">{POSTER[posterLang].tag}</span>
-            <input
-              value={tagInput}
-              maxLength={32}
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              onChange={(event) => setTagInput(event.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 32))}
-              className="mt-1 h-11 rounded-full bg-track px-4 text-base text-ink outline-none"
-            />
-          </label>
-          <div className="flex gap-1">
-            {(["hu", "de", "en"] as const).map((id) => (
-              <button
-                key={id}
-                type="button"
-                aria-pressed={posterLang === id}
-                onClick={() => setPosterLang(id)}
-                className={`h-11 rounded-full px-4 text-sm font-medium ${posterLang === id ? "bg-ink text-wall" : "bg-track text-ink"}`}
-              >
-                {id}
-              </button>
-            ))}
-          </div>
-          <button type="button" onClick={() => window.print()} className="h-11 rounded-full bg-ink px-5 text-sm font-medium text-wall">
-            {text.print}
-          </button>
-        </div>
-      </section>
-
-      <article className="poster-sheet mx-auto my-6 flex max-w-[210mm] flex-col items-center justify-between bg-white px-8 py-10 text-center text-[#241f1c] shadow-none">
-        <img src="/fox-head.png" alt="" width={120} height={134} className="poster-fox object-contain" />
-        <div>
-          <h2 className="font-display text-5xl font-medium">{poster.brand}</h2>
-          <p className="mt-4 text-2xl">{poster.line}</p>
-        </div>
-        <div className="poster-qr">
-          <QrCode text={qr} label={poster.scan} />
-        </div>
-        <div>
-          <p className="text-2xl">{poster.scan}</p>
-          <p className="mt-3 text-xl">
-            {poster.tag}: {effective}
-          </p>
-        </div>
-      </article>
+      <ClassroomPoster
+        sectionId="poszter"
+        heading={text.poster}
+        printLabel={text.print}
+        tagInput={tagInput}
+        onTagChange={setTagInput}
+        posterLang={posterLang}
+        onPosterLang={setPosterLang}
+        origin={origin}
+      />
     </main>
   );
 }

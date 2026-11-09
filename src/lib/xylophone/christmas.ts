@@ -30,7 +30,7 @@ export function songBySlug(slug: string): RepertoireSong | undefined {
 
 /** Paths a crawler should see: home, the new public pages, and every Christmas song. */
 export function publicPaths(): string[] {
-  return ["/", "/advent", "/tanar", ...christmasSongs().map((song) => `/dal/${song.id}`)];
+  return ["/", "/advent", "/tanar", "/plakat", ...christmasSongs().map((song) => `/dal/${song.id}`)];
 }
 
 export function sitemapXml(origin: string): string {

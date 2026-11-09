@@ -1652,7 +1652,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
               ))}
             </div>
             <a
-              href={`/tanar?${new URLSearchParams({ lang, ...(fromTag ? { from: fromTag } : {}) }).toString()}#poszter`}
+              href={`/plakat?${new URLSearchParams({ lang, ...(fromTag ? { from: fromTag } : {}) }).toString()}`}
               className="mt-3 flex h-11 w-full items-center justify-center rounded-full bg-wall text-sm font-medium"
             >
               {text.posterMenu}
