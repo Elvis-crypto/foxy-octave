@@ -37,6 +37,11 @@ export type Disk = {
   /** False hides the syllable dot. Missing means on. */
   syllables?: boolean;
   foxToys?: boolean;
+  /**
+   * Built-in or saved song ids whose melody play-through reached the last note.
+   * Distinct ids. The ear score is not this list.
+   */
+  played?: string[];
 };
 
 export type Chime = "wood" | "bell" | "glass" | "metal";
@@ -45,6 +50,10 @@ const CHIMES: readonly Chime[] = ["wood", "bell", "glass", "metal"];
 
 const KEY = "little-octave.v1";
 const MAX_JSON = 200_000;
+const PLAYED_ID = /^[a-z0-9-]{1,80}$/;
+
+/** Furulya Flow card waits until this many different songs have finished. */
+export const RECORDER_AFTER = 5;
 
 function sheetLines(value: unknown): SheetLine[] | undefined {
   if (!Array.isArray(value)) return undefined;
@@ -96,10 +105,41 @@ export function loadDisk(): Disk {
       keepClosed: Boolean(parsed.keepClosed),
       syllables: parsed.syllables === false ? false : undefined,
       foxToys: parsed.foxToys === false ? false : undefined,
+      played: playedIds(parsed.played),
     };
   } catch {
     return { saved: [] };
   }
+}
+
+function playedIds(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  for (const item of value) {
+    if (typeof item !== "string" || !PLAYED_ID.test(item) || seen.has(item)) continue;
+    seen.add(item);
+    ids.push(item);
+    if (ids.length >= 400) break;
+  }
+  return ids.length > 0 ? ids : undefined;
+}
+
+/** Add a finished song once. The same id again does not grow the list. */
+export function notePlayed(played: readonly string[] | undefined, id: string): string[] {
+  const current = played ? [...played] : [];
+  if (!PLAYED_ID.test(id) || current.includes(id)) return current;
+  return [...current, id];
+}
+
+/** Remember one finished play-through on the existing disk. Returns the distinct ids. */
+export function rememberPlayed(id: string): string[] {
+  const disk = loadDisk();
+  const before = disk.played ?? [];
+  if (!PLAYED_ID.test(id) || before.includes(id)) return before;
+  const played = [...before, id];
+  writeDisk({ ...disk, played });
+  return played;
 }
 
 function finite(value: unknown): number | undefined {

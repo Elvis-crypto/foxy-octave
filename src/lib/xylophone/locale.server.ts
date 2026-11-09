@@ -34,6 +34,19 @@ async function countryOf(ip: string): Promise<string | null> {
   }
 }
 
+export async function resolvePublicContext(): Promise<{ lang: Lang; search: string }> {
+  const request = getRequest();
+  let search = "";
+  if (request) {
+    try {
+      search = new URL(request.url).search;
+    } catch {
+      search = "";
+    }
+  }
+  return { lang: await resolveRequestLang(), search };
+}
+
 export async function resolveRequestLang(): Promise<Lang> {
   const request = getRequest();
   if (!request) return "en";

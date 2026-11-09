@@ -10,8 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdventRouteImport } from './routes/advent'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StatsRouteImport } from './routes/stats'
+import { Route as TanarRouteImport } from './routes/tanar'
+import { Route as DalSlugRouteImport } from './routes/dal/$slug'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiOgShareRouteImport } from './routes/api/og/share'
 
@@ -20,14 +24,34 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdventRoute = AdventRouteImport.update({
+  id: '/advent',
+  path: '/advent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StatsRoute = StatsRouteImport.update({
   id: '/stats',
   path: '/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TanarRoute = TanarRouteImport.update({
+  id: '/tanar',
+  path: '/tanar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DalSlugRoute = DalSlugRouteImport.update({
+  id: '/dal/$slug',
+  path: '/dal/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -43,38 +67,82 @@ const ApiOgShareRoute = ApiOgShareRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/advent': typeof AdventRoute
   '/login': typeof LoginRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stats': typeof StatsRoute
+  '/tanar': typeof TanarRoute
+  '/dal/$slug': typeof DalSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/og/share': typeof ApiOgShareRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/advent': typeof AdventRoute
   '/login': typeof LoginRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stats': typeof StatsRoute
+  '/tanar': typeof TanarRoute
+  '/dal/$slug': typeof DalSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/og/share': typeof ApiOgShareRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/advent': typeof AdventRoute
   '/login': typeof LoginRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stats': typeof StatsRoute
+  '/tanar': typeof TanarRoute
+  '/dal/$slug': typeof DalSlugRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/og/share': typeof ApiOgShareRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/stats' | '/api/auth/$' | '/api/og/share'
+  fullPaths:
+    | '/'
+    | '/advent'
+    | '/login'
+    | '/sitemap.xml'
+    | '/stats'
+    | '/tanar'
+    | '/dal/$slug'
+    | '/api/auth/$'
+    | '/api/og/share'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/stats' | '/api/auth/$' | '/api/og/share'
-  id: '__root__' | '/' | '/login' | '/stats' | '/api/auth/$' | '/api/og/share'
+  to:
+    | '/'
+    | '/advent'
+    | '/login'
+    | '/sitemap.xml'
+    | '/stats'
+    | '/tanar'
+    | '/dal/$slug'
+    | '/api/auth/$'
+    | '/api/og/share'
+  id:
+    | '__root__'
+    | '/'
+    | '/advent'
+    | '/login'
+    | '/sitemap.xml'
+    | '/stats'
+    | '/tanar'
+    | '/dal/$slug'
+    | '/api/auth/$'
+    | '/api/og/share'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdventRoute: typeof AdventRoute
   LoginRoute: typeof LoginRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StatsRoute: typeof StatsRoute
+  TanarRoute: typeof TanarRoute
+  DalSlugRoute: typeof DalSlugRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiOgShareRoute: typeof ApiOgShareRoute
 }
@@ -88,6 +156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/advent': {
+      id: '/advent'
+      path: '/advent'
+      fullPath: '/advent'
+      preLoaderRoute: typeof AdventRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -95,11 +170,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stats': {
       id: '/stats'
       path: '/stats'
       fullPath: '/stats'
       preLoaderRoute: typeof StatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tanar': {
+      id: '/tanar'
+      path: '/tanar'
+      fullPath: '/tanar'
+      preLoaderRoute: typeof TanarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dal/$slug': {
+      id: '/dal/$slug'
+      path: '/dal/$slug'
+      fullPath: '/dal/$slug'
+      preLoaderRoute: typeof DalSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -121,8 +217,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdventRoute: AdventRoute,
   LoginRoute: LoginRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   StatsRoute: StatsRoute,
+  TanarRoute: TanarRoute,
+  DalSlugRoute: DalSlugRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiOgShareRoute: ApiOgShareRoute,
 }

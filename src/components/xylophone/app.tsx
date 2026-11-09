@@ -21,7 +21,9 @@ import { centsBetween, nearestBar } from "@/lib/xylophone/pitch";
 import { gradeHit, shouldCall, tallyGrades, type Grade, type Tally, type Verdict } from "@/lib/xylophone/score";
 import { ToyEar } from "@/lib/xylophone/ear";
 import { clearToy, loadToy, saveToy } from "@/lib/xylophone/toy";
-import { loadDisk, adoptCore, mergeTunes, sheetChanged, writeDisk, type SavedTune } from "@/lib/xylophone/storage";
+import { loadDisk, adoptCore, mergeTunes, rememberPlayed, sheetChanged, writeDisk, RECORDER_AFTER, type SavedTune } from "@/lib/xylophone/storage";
+import { FURULYA_FLOW_URL } from "@/lib/xylophone/furulya";
+import { partnerTag } from "@/lib/xylophone/partner";
 import { CORE_STAMPS } from "@/lib/xylophone/repertoire";
 import { captureTune, listMyTunes, removeMyTune, saveMyTune } from "@/lib/xylophone/cloud";
 import { GROK_PROVIDERS, authEnabled, signIn } from "@/lib/auth/client";
@@ -220,6 +222,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
   const [reportNote, setReportNote] = useState("");
   const [reportBusy, setReportBusy] = useState(false);
   const [fromTag, setFromTag] = useState("");
+  const [played, setPlayed] = useState<string[]>([]);
   const [reportHint, setReportHint] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [shareNote, setShareNote] = useState("");
@@ -343,6 +346,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
       setChime(disk.voice);
     }
     setKeepClosed(Boolean(disk.keepClosed));
+    setPlayed(disk.played ?? []);
     setDiskReady(true);
     toyRef.current = loadToy(span);
   }, []);
@@ -406,6 +410,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
         scheduledRef.current.add(i);
       }
       if (beatNow > Math.max(chartRef.current.endBeat, notes.at(-1)?.startBeat ?? 0) + 0.75) {
+        if (notes.length > 0) setPlayed(rememberPlayed(chartRef.current.id));
         if (turnRef.current === "play") {
           setTally(tallyGrades(notes.length, gradesRef.current));
           turnRef.current = "score";
@@ -486,11 +491,11 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
   }
 
   useEffect(() => {
-    const from = new URLSearchParams(window.location.search).get("from") ?? "";
-    if (!/^[a-z0-9-]{1,24}$/i.test(from)) return;
+    const from = partnerTag(new URLSearchParams(window.location.search).get("from"));
+    if (!from) return;
     setFromTag(from);
     // Count the visit once per tab session, so a refresh is not a second visit.
-    const seenKey = `little-octave.from.${from.toLowerCase()}`;
+    const seenKey = `little-octave.from.${from}`;
     try {
       if (sessionStorage.getItem(seenKey)) return;
       sessionStorage.setItem(seenKey, "1");
@@ -624,6 +629,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
       keepClosed: next.keepClosed ?? keepClosed,
       syllables: next.syllables ?? syllablesOn,
       foxToys: next.foxToys ?? foxToys,
+      played: loadDisk().played,
     });
   }
 
@@ -1231,7 +1237,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
       </header>
 
       {onStage ? null : (
-      <div className={`mt-2 flex min-h-0 flex-col overflow-hidden ${browsing ? "flex-1" : "max-h-36 flex-1"}`}>
+      <div className={`mt-2 flex min-h-0 flex-col overflow-hidden ${browsing ? "flex-1" : played.length >= RECORDER_AFTER ? "max-h-56 flex-1" : "max-h-36 flex-1"}`}>
         <div className="flex shrink-0 items-center justify-between gap-2">
           <p className="text-sm text-muted">
             {text.songs}
@@ -1250,6 +1256,13 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
             {browsing ? text.done : text.browse}
           </button>
         </div>
+        {played.length >= RECORDER_AFTER ? (
+          <a href={FURULYA_FLOW_URL} className="mt-2 block shrink-0 rounded-2xl bg-track px-3 py-2">
+            <span className="block text-sm font-medium">{text.recorderReady}</span>
+            <span className="block text-xs text-pretty text-muted">{text.recorderBody}</span>
+            <span className="mt-1 block text-xs font-medium">{text.recorderOpen}</span>
+          </a>
+        ) : null}
         {browsing ? (
           <div className="mt-2 shrink-0">
             <div className="flex flex-wrap gap-1" role="group" aria-label={text.songLanguage}>
@@ -1628,6 +1641,12 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
                 </button>
               ))}
             </div>
+            <a
+              href={`/tanar?${new URLSearchParams({ lang, ...(fromTag ? { from: fromTag } : {}) }).toString()}`}
+              className="mt-3 flex h-11 w-full items-center justify-center rounded-full bg-wall text-sm font-medium"
+            >
+              {text.classroom}
+            </a>
             <p className="mt-3 text-sm text-muted">{text.account}</p>
             <div className="mt-1 rounded-2xl bg-wall px-3 py-3">
               {!authEnabled ? (

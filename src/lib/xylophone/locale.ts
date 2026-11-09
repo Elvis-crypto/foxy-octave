@@ -37,3 +37,9 @@ export const languageFromIp = createServerFn({ method: "GET" }).handler(async ()
   const { resolveRequestLang } = await import("./locale.server.ts");
   return resolveRequestLang();
 });
+
+/** Page language plus the raw query, so a deep link can keep `?lang=` and `?from=`. */
+export const publicPageContext = createServerFn({ method: "GET" }).handler(async (): Promise<{ lang: Lang; search: string }> => {
+  const { resolvePublicContext } = await import("./locale.server.ts");
+  return resolvePublicContext();
+});

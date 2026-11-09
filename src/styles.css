@@ -138,6 +138,45 @@ button.bar-key,
   }
 }
 
+.poster-sheet {
+  min-height: 240mm;
+}
+
+.poster-fox {
+  width: 28mm;
+  height: auto;
+}
+
+.poster-qr {
+  width: 70mm;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .poster-sheet {
+    display: flex !important;
+    width: auto;
+    max-width: none;
+    min-height: 250mm;
+    margin: 0;
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+}
+
 .song-list {
   scrollbar-width: thin;
   scrollbar-color: #c4b8a8 transparent;
