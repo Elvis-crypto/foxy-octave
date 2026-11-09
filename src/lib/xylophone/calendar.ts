@@ -39,3 +39,14 @@ export function adventDoors(date: BudapestDate, songIds: readonly string[]): Adv
     return { day, songId, state: "open" };
   });
 }
+
+/**
+ * Home-screen Advent link: 23 November through 31 December, Budapest date.
+ * Visible before doors open so people can find the calendar, and through year-end.
+ */
+export function showAdventHomeLink(date: BudapestDate = budapestDate()): boolean {
+  if (date.month === 11) return date.day >= 23;
+  if (date.month === 12) return true;
+  return false;
+}
+

@@ -23,6 +23,7 @@ import { ToyEar } from "@/lib/xylophone/ear";
 import { clearToy, loadToy, saveToy } from "@/lib/xylophone/toy";
 import { loadDisk, adoptCore, mergeTunes, rememberPlayed, sheetChanged, writeDisk, RECORDER_AFTER, type SavedTune } from "@/lib/xylophone/storage";
 import { FURULYA_FLOW_URL } from "@/lib/xylophone/furulya";
+import { budapestDate, showAdventHomeLink } from "@/lib/xylophone/calendar";
 import { partnerTag } from "@/lib/xylophone/partner";
 import { CORE_STAMPS } from "@/lib/xylophone/repertoire";
 import { captureTune, listMyTunes, removeMyTune, saveMyTune } from "@/lib/xylophone/cloud";
@@ -1236,6 +1237,15 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
         </div>
       </header>
 
+      {!onStage && showAdventHomeLink(budapestDate()) ? (
+        <a
+          href={`/advent?${new URLSearchParams({ lang, ...(fromTag ? { from: fromTag } : {}) }).toString()}`}
+          className="mt-2 inline-flex h-9 shrink-0 items-center self-start rounded-full bg-track px-3 text-sm font-medium"
+        >
+          {text.adventLink}
+        </a>
+      ) : null}
+
       {onStage ? null : (
       <div className={`mt-2 flex min-h-0 flex-col overflow-hidden ${browsing ? "flex-1" : played.length >= RECORDER_AFTER ? "max-h-56 flex-1" : "max-h-36 flex-1"}`}>
         <div className="flex shrink-0 items-center justify-between gap-2">
@@ -1642,10 +1652,10 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
               ))}
             </div>
             <a
-              href={`/tanar?${new URLSearchParams({ lang, ...(fromTag ? { from: fromTag } : {}) }).toString()}`}
+              href={`/tanar?${new URLSearchParams({ lang, ...(fromTag ? { from: fromTag } : {}) }).toString()}#poszter`}
               className="mt-3 flex h-11 w-full items-center justify-center rounded-full bg-wall text-sm font-medium"
             >
-              {text.classroom}
+              {text.posterMenu}
             </a>
             <p className="mt-3 text-sm text-muted">{text.account}</p>
             <div className="mt-1 rounded-2xl bg-wall px-3 py-3">

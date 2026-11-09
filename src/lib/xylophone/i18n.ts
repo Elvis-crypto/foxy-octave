@@ -141,7 +141,8 @@ export type Copy = {
   recorderReady: string;
   recorderBody: string;
   recorderOpen: string;
-  classroom: string;
+  posterMenu: string;
+  adventLink: string;
 };
 
 export const copy: Record<Lang, Copy> = {
@@ -270,7 +271,8 @@ export const copy: Record<Lang, Copy> = {
     recorderReady: "Jöhet a furulya?",
     recorderBody: "Öt különböző dal végigszólt.",
     recorderOpen: "Furulya Flow",
-    classroom: "Tanterem",
+    posterMenu: "Óvodáknak – plakát",
+    adventLink: "Adventi naptár 🦊",
   },
   en: {
     brand: "Foxy Octave",
@@ -397,7 +399,8 @@ export const copy: Record<Lang, Copy> = {
     recorderReady: "Ready for recorder?",
     recorderBody: "Five different songs finished.",
     recorderOpen: "Furulya Flow",
-    classroom: "Classroom",
+    posterMenu: "For kindergartens – poster",
+    adventLink: "Advent calendar 🦊",
   },
   fr: {
     brand: "Octave du renard",
@@ -524,7 +527,8 @@ export const copy: Record<Lang, Copy> = {
     recorderReady: "Prêt pour la flûte ?",
     recorderBody: "Cinq chansons différentes sont finies.",
     recorderOpen: "Furulya Flow",
-    classroom: "Classe",
+    posterMenu: "Pour les crèches – affiche",
+    adventLink: "Calendrier de l'Avent 🦊",
   },
   de: {
     brand: "Fuchsoktave",
@@ -651,7 +655,8 @@ export const copy: Record<Lang, Copy> = {
     recorderReady: "Bereit für die Blockflöte?",
     recorderBody: "Fünf verschiedene Lieder sind fertig.",
     recorderOpen: "Furulya Flow",
-    classroom: "Klassenzimmer",
+    posterMenu: "Für Kitas – Plakat",
+    adventLink: "Adventskalender 🦊",
   },
   es: {
     brand: "Octava del zorro",
@@ -778,7 +783,8 @@ export const copy: Record<Lang, Copy> = {
     recorderReady: "¿Listos para la flauta?",
     recorderBody: "Cinco canciones distintas terminadas.",
     recorderOpen: "Furulya Flow",
-    classroom: "Aula",
+    posterMenu: "Para guarderías – cartel",
+    adventLink: "Calendario de Adviento 🦊",
   },
   da: {
     brand: "Rævens oktav",
@@ -905,7 +911,8 @@ export const copy: Record<Lang, Copy> = {
     recorderReady: "Klar til blokfløjte?",
     recorderBody: "Fem forskellige sange er færdige.",
     recorderOpen: "Furulya Flow",
-    classroom: "Klasseværelse",
+    posterMenu: "Til børnehaver – plakat",
+    adventLink: "Adventskalender 🦊",
   },
 };
 

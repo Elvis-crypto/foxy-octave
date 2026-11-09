@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { adventDoors, budapestDate } from "./calendar.ts";
+import { adventDoors, budapestDate, showAdventHomeLink } from "./calendar.ts";
 import { CHRISTMAS_IDS, playerHref, publicPaths, sitemapXml, songBySlug, songMeta } from "./christmas.ts";
 import { partnerTag } from "./partner.ts";
 import { REPERTOIRE } from "./repertoire.ts";
@@ -11,6 +11,18 @@ describe("budapest date", () => {
     assert.deepEqual(budapestDate(new Date("2026-11-09T12:00:00Z")), { year: 2026, month: 11, day: 9 });
     assert.deepEqual(budapestDate(new Date("2026-11-30T22:30:00Z")), { year: 2026, month: 11, day: 30 });
     assert.deepEqual(budapestDate(new Date("2026-11-30T23:30:00Z")), { year: 2026, month: 12, day: 1 });
+  });
+});
+
+
+describe("advent home link", () => {
+  it("shows from 23 November through 31 December, Budapest date", () => {
+    assert.equal(showAdventHomeLink({ year: 2026, month: 11, day: 22 }), false);
+    assert.equal(showAdventHomeLink({ year: 2026, month: 11, day: 23 }), true);
+    assert.equal(showAdventHomeLink({ year: 2026, month: 12, day: 1 }), true);
+    assert.equal(showAdventHomeLink({ year: 2026, month: 12, day: 31 }), true);
+    assert.equal(showAdventHomeLink({ year: 2027, month: 1, day: 1 }), false);
+    assert.equal(showAdventHomeLink({ year: 2026, month: 10, day: 31 }), false);
   });
 });
 

@@ -86,6 +86,12 @@ export function TeacherPage({ suggested, search }: { suggested: Lang; search: st
 
   useEffect(() => setOrigin(window.location.origin), []);
 
+  useEffect(() => {
+    if (window.location.hash !== "#poszter") return;
+    const node = document.getElementById("poszter");
+    node?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   const song = songs.find((item) => item.id === songId) ?? songs[0];
   const poster = POSTER[posterLang];
   const qr = origin ? `${origin}/?from=${effective}&lang=${posterLang}` : "";
@@ -209,7 +215,7 @@ export function TeacherPage({ suggested, search }: { suggested: Lang; search: st
         </section>
       </div>
 
-      <section className="no-print mx-auto max-w-6xl px-4 pb-10">
+      <section id="poszter" className="no-print mx-auto max-w-6xl px-4 pb-10 scroll-mt-4">
         <h2 className="font-display text-3xl font-medium">{text.poster}</h2>
         <div className="mt-3 flex flex-wrap items-end gap-3">
           <label className="text-sm">
