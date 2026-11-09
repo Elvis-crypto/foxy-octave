@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getSql } from "@/lib/db";
 import { isLang } from "./i18n.ts";
+import { partnerTag } from "./partner.ts";
 
 export type ReportInput = {
   body?: unknown;
@@ -55,8 +56,8 @@ export const saveReport = createServerFn({ method: "POST" })
 /** Count one partner visit (`?from=tag`) for today. Nothing about the visitor is kept. */
 export const countPartnerVisit = createServerFn({ method: "POST" })
   .validator((input: { tag?: unknown }) => {
-    const tag = typeof input?.tag === "string" ? input.tag.trim().toLowerCase() : "";
-    if (!/^[a-z0-9-]{1,24}$/.test(tag)) throw new Error("bad tag");
+    const tag = partnerTag(typeof input?.tag === "string" ? input.tag : null);
+    if (!tag) throw new Error("bad tag");
     return { tag };
   })
   .handler(async ({ data }) => {

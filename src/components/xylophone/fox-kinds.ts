@@ -1,7 +1,7 @@
 export type FoxSceneKind = "walk" | "winter" | "autumn" | "spring" | "night" | "dance" | "rain" | "pond";
 
 const SCENES: Record<Exclude<FoxSceneKind, "walk">, readonly string[]> = {
-  winter: ["jingle-bells", "mennybol-az-angyal", "elesett-a-lud", "pelyhes"],
+  winter: ["jingle-bells", "mennybol-az-angyal", "elesett-a-lud", "pelyhes", "kirje", "pasztorok", "kiskaracsony"],
   autumn: ["szolo", "szilva", "osszel-erik-babam", "felulrol-fuj", "debrecenbe"],
   spring: [
     "tavaszi", "katalinka", "voegel", "kuckuck", "bienchen", "golya", "en-kis-kertet", "choux",

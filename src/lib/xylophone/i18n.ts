@@ -138,6 +138,11 @@ export type Copy = {
   reportSend: string;
   reportSent: string;
   reportFail: string;
+  recorderReady: string;
+  recorderBody: string;
+  recorderOpen: string;
+  posterMenu: string;
+  adventLink: string;
 };
 
 export const copy: Record<Lang, Copy> = {
@@ -263,6 +268,11 @@ export const copy: Record<Lang, Copy> = {
     reportSend: "Elküldöm",
     reportSent: "Megvan. Köszönjük.",
     reportFail: "Nem sikerült elküldeni. Próbáld újra.",
+    recorderReady: "Jöhet a furulya?",
+    recorderBody: "Öt különböző dal végigszólt.",
+    recorderOpen: "Furulya Flow",
+    posterMenu: "Óvodáknak – plakát",
+    adventLink: "Adventi naptár 🦊",
   },
   en: {
     brand: "Foxy Octave",
@@ -386,6 +396,11 @@ export const copy: Record<Lang, Copy> = {
     reportSend: "Send",
     reportSent: "Saved. Thank you.",
     reportFail: "Couldn't save that. Try again.",
+    recorderReady: "Ready for recorder?",
+    recorderBody: "Five different songs finished.",
+    recorderOpen: "Furulya Flow",
+    posterMenu: "For kindergartens – poster",
+    adventLink: "Advent calendar 🦊",
   },
   fr: {
     brand: "Octave du renard",
@@ -509,6 +524,11 @@ export const copy: Record<Lang, Copy> = {
     reportSend: "Envoyer",
     reportSent: "C'est noté. Merci.",
     reportFail: "L'envoi n'a pas marché. Réessaie.",
+    recorderReady: "Prêt pour la flûte ?",
+    recorderBody: "Cinq chansons différentes sont finies.",
+    recorderOpen: "Furulya Flow",
+    posterMenu: "Pour les crèches – affiche",
+    adventLink: "Calendrier de l'Avent 🦊",
   },
   de: {
     brand: "Fuchsoktave",
@@ -632,6 +652,11 @@ export const copy: Record<Lang, Copy> = {
     reportSend: "Senden",
     reportSent: "Gespeichert. Danke.",
     reportFail: "Das ging nicht. Versuch es noch einmal.",
+    recorderReady: "Bereit für die Blockflöte?",
+    recorderBody: "Fünf verschiedene Lieder sind fertig.",
+    recorderOpen: "Furulya Flow",
+    posterMenu: "Für Kitas – Plakat",
+    adventLink: "Adventskalender 🦊",
   },
   es: {
     brand: "Octava del zorro",
@@ -755,6 +780,11 @@ export const copy: Record<Lang, Copy> = {
     reportSend: "Enviar",
     reportSent: "Guardado. Gracias.",
     reportFail: "No se pudo guardar. Prueba otra vez.",
+    recorderReady: "¿Listos para la flauta?",
+    recorderBody: "Cinco canciones distintas terminadas.",
+    recorderOpen: "Furulya Flow",
+    posterMenu: "Para guarderías – cartel",
+    adventLink: "Calendario de Adviento 🦊",
   },
   da: {
     brand: "Rævens oktav",
@@ -878,6 +908,11 @@ export const copy: Record<Lang, Copy> = {
     reportSend: "Send",
     reportSent: "Gemt. Tak.",
     reportFail: "Det kunne ikke gemmes. Prøv igen.",
+    recorderReady: "Klar til blokfløjte?",
+    recorderBody: "Fem forskellige sange er færdige.",
+    recorderOpen: "Furulya Flow",
+    posterMenu: "Til børnehaver – plakat",
+    adventLink: "Adventskalender 🦊",
   },
 };
 
