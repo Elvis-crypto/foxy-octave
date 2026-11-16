@@ -2,6 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { SongPage } from "@/components/xylophone/song-page";
 import { songBySlug, songMeta } from "@/lib/xylophone/christmas";
 import { publicPageContext } from "@/lib/xylophone/locale";
+import { useTrackPage } from "@/lib/xylophone/track-page";
 
 export const Route = createFileRoute("/dal/$slug")({
   loader: async ({ params }) => {
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/dal/$slug")({
 
 function DalPage() {
   const data = Route.useLoaderData();
+  useTrackPage(`/dal/${data.song.id}`, data.song.id);
   return <SongPage song={data.song} suggested={data.suggested} search={data.search} />;
 }
 

@@ -32,13 +32,16 @@ Rate limit: 5 per caller per 30 min, 200 per hour overall (`SONG_REQUEST_LIMIT`)
 
 ## Visitor stats
 
-Cookieless, first-party (migration 0009, `site_events`). Each page load posts one
-`view` (with `?ref=` / `?from=` tag, referrer host, landing `?song=`); share clicks
-post a `share` with the channel. Unique visitors are a SHA-256 of
+Cookieless, first-party (migrations 0009–0010, `site_events`). Each page load posts one
+`view` (with `?ref=` / `?from=` tag, referrer host, landing `?song=`, and a whitelisted
+`path`: `/`, `/advent`, `/plakat`, `/tanar`, `/dal/<slug>`). Starting a song posts
+`play`; a finished play-through posts `finish` (once per song per page load). Share
+clicks post a `share` with the channel. Unique visitors are a SHA-256 of
 (`STATS_SALT`, day, address, browser) that changes daily — no cookies, no IPs stored.
 
 Private page: `/stats?token=<STATS_TOKEN>` (404 without it). Today / 7 days / all time
-per source, a 30-day chart, referrers, landing songs, share clicks.
+per source, a 30-day chart, referrers, landing songs, share clicks, song starts and
+finishes (with completion rate), top songs, and page hits.
 
 ```sql
 select day, src, count(distinct visitor) filter (where kind='view') visitors,

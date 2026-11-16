@@ -1,26 +1,29 @@
-import { DEFAULT_PAPER_TAG, partnerTag } from "@/lib/xylophone/partner";
+import { DEFAULT_PAPER_TAG, partnerTag, slugTagInput } from "@/lib/xylophone/partner";
 import { QrCode } from "./qr-code";
 
 export type PosterLang = "hu" | "de" | "en";
 
-export const POSTER: Record<PosterLang, { brand: string; line: string; scan: string; tag: string }> = {
+export const POSTER: Record<PosterLang, { brand: string; line: string; scan: string; tag: string; tagHint: string }> = {
   hu: {
     brand: "Rókás oktáv",
     line: "Énekeljünk a xilofonnal.",
     scan: "Olvasd be a kódot.",
     tag: "Jel",
+    tagHint: "Írd be az óvoda rövid nevét (pl. napsugar-tata). A kód ezzel a jellel kerül a plakátra, így látjuk, hány beolvasás jön innen.",
   },
   de: {
     brand: "Fuchsoktave",
     line: "Wir singen mit dem Xylophon.",
     scan: "Lies den Code.",
     tag: "Kennung",
+    tagHint: "Kurzname eures Kindergartens (z. B. sonnenschein-wien). Er steht im Code, so sehen wir, wie viele Scans von diesem Plakat kommen.",
   },
   en: {
     brand: "Foxy Octave",
     line: "Sing with the xylophone.",
     scan: "Scan the code.",
     tag: "Tag",
+    tagHint: "Type a short name for your kindergarten (e.g. sunshine-leeds). It goes into the code, so we can see how many scans come from this poster.",
   },
 };
 
@@ -62,11 +65,12 @@ export function ClassroomPoster({
               autoCorrect="off"
               spellCheck={false}
               onChange={(event) =>
-                onTagChange(event.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 32))
+                onTagChange(slugTagInput(event.target.value))
               }
               className="mt-1 h-11 rounded-full bg-track px-4 text-base text-ink outline-none"
             />
           </label>
+          <p className="basis-full text-sm text-muted max-w-xl order-last">{POSTER[posterLang].tagHint}</p>
           <div className="flex gap-1">
             {(["hu", "de", "en"] as const).map((id) => (
               <button
