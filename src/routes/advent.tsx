@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AdventPage } from "@/components/xylophone/advent-page";
 import { budapestDate } from "@/lib/xylophone/calendar";
 import { publicPageContext } from "@/lib/xylophone/locale";
+import { useTrackPage } from "@/lib/xylophone/track-page";
 
 export const Route = createFileRoute("/advent")({
   loader: async () => {
@@ -19,5 +20,6 @@ export const Route = createFileRoute("/advent")({
 
 function AdventRoute() {
   const data = Route.useLoaderData();
+  useTrackPage("/advent");
   return <AdventPage suggested={data.suggested} search={data.search} date={data.date} />;
 }

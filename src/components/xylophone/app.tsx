@@ -35,6 +35,7 @@ import { REPERTOIRE } from "@/lib/xylophone/repertoire";
 import { followSyllables } from "@/lib/xylophone/syllables";
 import { countPartnerVisit, saveReport, saveSongRequest } from "@/lib/xylophone/reports";
 import { trackEvent } from "@/lib/xylophone/stats";
+import { trackPageView, trackSongEvent } from "@/lib/xylophone/track-page";
 import { SHARE_COPY, playedLine, shareQuery, starsFor } from "@/lib/xylophone/share";
 import { barsForSpan, type Bar, type Span } from "@/lib/xylophone/theory";
 
@@ -274,6 +275,14 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
   const syllableSpot = useRef<{ x: number; y: number; line: string; syllable: number } | null>(null);
   const syllableAnim = useRef<Animation | null>(null);
   const barsRef = useRef(barsForSpan(8));
+  const songEventRef = useRef({ play: new Set<string>(), finish: new Set<string>() });
+  /** Once per song per page load. Fire-and-forget so playback timing stays unchanged. */
+  function noteSongEvent(kind: "play" | "finish", song: string) {
+    const seen = songEventRef.current[kind];
+    if (!song || seen.has(song)) return;
+    seen.add(song);
+    trackSongEvent(kind, song);
+  }
 
   useEffect(() => {
     phaseRef.current = phase;
@@ -412,6 +421,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
       }
       if (beatNow > Math.max(chartRef.current.endBeat, notes.at(-1)?.startBeat ?? 0) + 0.75) {
         if (notes.length > 0) setPlayed(rememberPlayed(chartRef.current.id));
+        if (notes.length > 0) noteSongEvent("finish", chartRef.current.id);
         if (turnRef.current === "play") {
           setTally(tallyGrades(notes.length, gradesRef.current));
           turnRef.current = "score";
@@ -473,17 +483,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
   }, [callout]);
 
   useEffect(() => {
-    // Cookieless page view; a session starts when the visitor arrives from outside the site.
-    const q = new URLSearchParams(window.location.search);
-    let sessionStart = true;
-    try {
-      sessionStart = !document.referrer || new URL(document.referrer).host !== window.location.host;
-    } catch {
-      /* keep true */
-    }
-    void trackEvent({
-      data: { kind: "view", ref: q.get("ref") ?? undefined, from: q.get("from") ?? undefined, referrer: sessionStart ? document.referrer : undefined, song: q.get("song") ?? undefined, sessionStart },
-    }).catch(() => {});
+    trackPageView("/");
   }, []);
 
   function trackShare(channel: "native" | "copy" | "whatsapp" | "facebook") {
@@ -726,6 +726,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     }
     phaseRef.current = "playing";
     setPhase("playing");
+    noteSongEvent("play", chartRef.current.id);
   }
 
   function startPlay() {
@@ -746,6 +747,7 @@ export function XylophoneApp({ suggestedLang = "hu" }: { suggestedLang?: Lang })
     phaseRef.current = "playing";
     setPhase("playing");
     setBeat(from);
+    noteSongEvent("play", chartRef.current.id);
   }
 
   async function openEar() {

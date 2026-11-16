@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { TeacherPage } from "@/components/xylophone/teacher-page";
 import { publicPageContext } from "@/lib/xylophone/locale";
+import { useTrackPage } from "@/lib/xylophone/track-page";
 
 export const Route = createFileRoute("/tanar")({
   loader: async () => {
@@ -18,5 +19,6 @@ export const Route = createFileRoute("/tanar")({
 
 function TanarRoute() {
   const data = Route.useLoaderData();
+  useTrackPage("/tanar");
   return <TeacherPage suggested={data.suggested} search={data.search} />;
 }

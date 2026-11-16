@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PosterPage } from "@/components/xylophone/poster-page";
 import { publicPageContext } from "@/lib/xylophone/locale";
+import { useTrackPage } from "@/lib/xylophone/track-page";
 
 export const Route = createFileRoute("/plakat")({
   loader: async () => {
@@ -18,5 +19,6 @@ export const Route = createFileRoute("/plakat")({
 
 function PlakatRoute() {
   const data = Route.useLoaderData();
+  useTrackPage("/plakat");
   return <PosterPage suggested={data.suggested} search={data.search} />;
 }
