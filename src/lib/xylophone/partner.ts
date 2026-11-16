@@ -10,3 +10,14 @@ export function partnerTag(value: string | null | undefined): string | null {
 
 /** Printed on a teacher poster when the kindergarten has not set its own tag. */
 export const DEFAULT_PAPER_TAG = "paper";
+
+/** Turn typed text into a tag: accents to plain letters, spaces to dashes ("Napsugár Óvoda" -> "napsugar-ovoda"). */
+export function slugTagInput(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[\s.]+/g, "-")
+    .replace(/[^a-z0-9_-]/g, "")
+    .slice(0, 32);
+}
